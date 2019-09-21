@@ -10,7 +10,7 @@ tags:
     - leetcode
     - 数组
 ---
-# 从Array中remove系列
+## 从Array中remove系列
 ### 27 Remove Element
 ```java
 class Solution {
@@ -97,7 +97,7 @@ class Solution {
 ```
 第26题的变种，让重复次数最多可以两次，也是更新两个指针，i，j，记录i == j的个数，如果个数大于2，j就更新两个，小于等于2就更新个数个，然后再把j更新到i的值再进行判断；
 注意corner case
-
+## Two Pass
 ### 277 Find the Celebrity
 ```java
 /* The knows API is defined in the parent class Relation.
