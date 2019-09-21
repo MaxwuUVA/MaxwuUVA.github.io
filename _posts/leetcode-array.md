@@ -10,7 +10,7 @@ tags:
     - leetcode
     - 数组
 ---
-#从Array中remove系列
+#*从Array中remove系列
 ###27 Remove Element
 ```java
 class Solution {
