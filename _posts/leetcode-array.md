@@ -10,8 +10,8 @@ tags:
     - leetcode
     - 数组
 ---
-#*从Array中remove系列
-###27 Remove Element
+# 从Array中remove系列
+### 27 Remove Element
 ```java
 class Solution {
     public int removeElement(int[] nums, int val) {      
