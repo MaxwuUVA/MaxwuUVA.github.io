@@ -37,13 +37,8 @@ class Solution {
 更新两个指针，一个遇到val就加1，一个遇到非val，swap然后加1.
 
 
-###26 Remove Duplicates from Sorted Array
+### 26 Remove Duplicates from Sorted Array
 ```java
-/*
- * @lc app=leetcode id=26 lang=java
- *
- * [26] Remove Duplicates from Sorted Array
- */
 class Solution {
     public int removeDuplicates(int[] nums) {
         //array duplicate系列
@@ -66,26 +61,75 @@ class Solution {
     }
 }
 ```
-和27差不多，一样是要求删除元素，不过这里是重复元素，然后让我们返回删除后元素的长度，一样是更新两个指针，从i = 1开始，
+和27差不多，一样是要求删除元素，不过这里是重复元素，然后让我们返回删除后元素的长度，一样是更新两个指针，从i = 1开始，如若nums[i-1] == nums[i],j不动，否则i，j一起前进。
 
 
+### 80 Remove Duplicates from Sorted Array II
+```java
+class Solution {
+    public int removeDuplicates(int[] nums) {  
+        //array
+        //two pointer
+        if(nums.length <= 2) return nums.length;
+        int j = 0,count = 0;
+        for(int i = 0;i<nums.length;i++){
+           if(nums[i] == nums[j]){  
+                count++;  
+            }else{
+              if(count >= 2) {
+                  for(int k=0;k<2;k++)
+                  {
+                      nums[j++] = nums[i-1];
+                  }
+                  nums[j] = nums[i];
+              }
+              if(count < 2) {
+                  nums[j++] = nums[i-1];
+                  nums[j] = nums[i];
+              }
+              count = 1;
+            }
+           }
+        for(int n = j; n<nums.length;n++) nums[n] =nums[j];//corner case，由于更新nums[j]的条件是nums[i] != nums[j]所以最后一个元素没有更新到
+        return (count>2)?j+2:j+count;//corner case 再更新len加上判断count个数
+    }
+}
+```
+第26题的变种，让重复次数最多可以两次，也是更新两个指针，i，j，记录i == j的个数，如果个数大于2，j就更新两个，小于等于2就更新个数个，然后再把j更新到i的值再进行判断；
+注意corner case
+
+### 277 Find the Celebrity
+```java
+/* The knows API is defined in the parent class Relation.
+      boolean knows(int a, int b); */
+
+public class Solution extends Relation {
+    public int findCelebrity(int n) {
+        //array
+        //matrix relation[][]      
+        for(int i = 0;i< n;i++){
+            for(int j = 0;j < n;j++){
+                if(!knows(j,i) && j != i){
+                    break;//如果一个人不被一个人认识，就淘汰
+                }
+                if(knows(i,j) && j != i ){
+                    break;//然后再看这个人除了自己如果还认识别人就淘汰
+                }
+                if(j == n-1){
+                    return i;//如果这个能迭代到最后，说明这个人是名人
+                }
+            }
+        }
+        return -1;
+    }
+}
+```
+这道题two pass是最优解，但是我还没有写出来，只写出了O(n^2)方法，基本思路就是先找到候选人，如果一个人不被一个人认识，就淘汰，然后再看这个人除了自己如果还认识别人就淘汰，如果这个能迭代到最后，说明这个人是名人；如果两个循环都没有找到名人，就返回-1.
 
 
-80
-
-Remove Duplicates from Sorted Array II
-
-
-
-277
-
-Find the Celebrity
-
-
-
-189
-
-Rotate Array
+### 189 Rotate Array
+```java
+```
 
 
 
