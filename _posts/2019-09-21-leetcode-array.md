@@ -14,7 +14,9 @@ tags:
 ### 27 Remove Element
 ```java
 class Solution {
-    public int removeElement(int[] nums, int val) {      
+    public int removeElement(int[] nums, int val) {   
+        //array
+        //two pointer   
         int count = 0;
         int index = 0;
         int tmp = 0;
@@ -44,7 +46,6 @@ class Solution {
         //array duplicate系列
         //two pointer
         //如果i > i-1 i,j一起出发，如果i == i-1 i前进，j不动，等待下一个赋值
-        //
         int j = 0;
         for(int i = 0;i < nums.length;i++){
             if( i < 1 || nums[i] > nums[i-1]){
