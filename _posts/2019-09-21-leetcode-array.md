@@ -130,8 +130,30 @@ public class Solution extends Relation {
 
 ### 189 Rotate Array
 ```java
-```
+ class Solution {
+    public void rotate(int[] nums, int k) {
+        //array
+        //rotate
+      k %= nums.length;
+      reverse(nums, 0, nums.length - 1);
+      reverse(nums, 0, k - 1);
+      reverse(nums, k, nums.length - 1);
+       
+   }
+   public void reverse(int[] nums, int start, int end) {
+       while (start < end) {
+           int temp = nums[start];
+           nums[start] = nums[end];
+           nums[end] = temp;
+           start++;
+           end--;
+    }
+  }
 
+    }
+}
+```
+反转数组，O(1)空间的方法应该是如果是移一位将最后一位之前的数swap i和n-1-i然后在对整个数组swap
 
 
 41
