@@ -270,7 +270,7 @@ class Solution {
 和climbing stairs一样是动态规划的感受练习，可以通过题意很简单的写出递推公式dp[i][j] = dp[i-1][j-1]+dp[i-1][j]
 首位末尾赋值1；
 
-###119 Pascal's Triangle II
+### 119 Pascal's Triangle II
 ```java
 public List<Integer> getRow(int rowIndex) {
         //dp
