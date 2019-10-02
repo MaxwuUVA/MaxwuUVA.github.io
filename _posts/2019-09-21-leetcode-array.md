@@ -396,40 +396,185 @@ class Solution {
 ```
 这回给定的是有序数组，求h-index，看能不能用logn时间找到，用二分查找，我们的target是第一个nums[i] >= len - i,如果在搜索过程中有相等数值，返回，没有则跳出后返回长度减指针
 Binary Search
+## 茫茫辞海我要找到你
+### 243 Shortest Word Distance
+```java
+class Solution {
+    public int shortestDistance(String[] words, String word1, String word2) {       
+        //only need to keep index
+        int t1 = -1,t2 = -1,min = words.length+1;
+        for(int i = 0;i< words.length;i++){
+            if(words[i].equals(word1)){
+                t1 = i;
+            }
+            if(words[i].equals(word2)){
+                t2 = i; 
+            }
+            if(t1 != -1 && t2 != -1){
+                min = Math.min(min,Math.abs(t1-t2));
+            }
+        }
+        return min;
+    }
+}
+```
+这道题的思路非常简单因为最短的距离必然出现在按序iterate的路径上，所以我们只需要跟踪两个单词所在的位置，这里用了一个trick就是为了避免index冲突，我们将两个index初始化均为-1。时间复杂度为O(n);
 
-243
 
-Shortest Word Distance
+### 244 Shortest Word Distance II
+```java
+class WordDistance {
+    
+    private Map<String,List<Integer>> map = new HashMap<>();
+    
+    public WordDistance(String[] words) {
+        
+        for(int i = 0;i<words.length;i++){
+            if(!map.containsKey(words[i])){
+                List<Integer> list = new ArrayList<>();
+                list.add(i);
+                map.put(words[i],list);
+                
+            }
+            else{
+                map.get(words[i]).add(i);
+            }
+        }
+        
+        
+    }
+    
+    public int shortest(String word1, String word2) {
+        
+        int min = Integer.MAX_VALUE;
+        for( int i = 0,j = 0;i < map.get(word1).size() && j< map.get(word2).size();){
+            int indexi = map.get(word1).get(i);
+            int indexj = map.get(word2).get(j);
+            min  = Math.min(min,Math.abs(indexi-indexj));
+            if(indexi < indexj){
+                i++;
+            }
+            else{
+                j++;
+            }
+        }
+       
+        return min;
+    }
+}
+
+/**
+ * Your WordDistance object will be instantiated and called as such:
+ * WordDistance obj = new WordDistance(words);
+ * int param_1 = obj.shortest(word1,word2);
+ */
+```
+这道题叫我们设计一个对象，实现243中的方法并且call repeatly time，所以最简单的优化就是用一个哈希表来存储所有的单词，用一个list保存所有出现过这个单词的位置，然后对这两个单词出现的所有位置求最小值；
+时间复杂的为O(n+m)n,m为两个单词出现的次数，利用空间环取了每次遍历word array的时间
 
 
+### 245 Shortest Word Distance III
+```java
+class Solution {
+    public int shortestWordDistance(String[] words, String word1, String word2) {
+        
+        int t1 = -1,t2 = -1,min = words.length+1;
+        for(int i = 0;i<words.length;i++){
+            if(words[i].equals(word1)){
+               
+                    t1 = i;
+                
+                    
+            }
+            if(words[i].equals(word2)){
+                if(word1.equals(word2)){
+                    t1 = t2;
+                }//swap
+                    t2 = i;
+            }
+            if(t1 != -1 && t2 != -1){
+                min = Math.min(min,Math.abs(t1-t2));
+            }
+        }
+        return min;
+        
+    }
+}
+```
+对第一题只改了一个条件，就是单词可以相同了，这里用到一个小trick就是当两个单词相同时，我们用指针找到两个单词时，对他们进行swap操作，保证两个单词不在一个位置。
 
-244
-
-Shortest Word Distance II
-
-
-
-245
-
-Shortest Word Distance III
-
-
-
-217
-
-Contains Duplicate
-
-
-
-219
-
-Contains Duplicate II
+## 查重
+###217 Contains Duplicate
+```java
+class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        
+        HashMap<Integer,Integer> map = new HashMap<>();
+        
+        for(int i = 0; i < nums.length;i++){
+            
+            if(map.containsKey(nums[i])){
+                
+                return true;
+                
+            }
+            else map.put(nums[i],i);
+            
+        }
+        
+        return false;
+        
+    }
+}
+```
+利用hashmap非常简单
+### 219 Contains Duplicate II
+```java
+class Solution {
+    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        
+        Set<Integer> set = new HashSet<>();//set(k) find k+1 element in set
+        for(int i = 0;i<nums.length;i++)
+        {
+            if(set.contains(nums[i])) return true;
+            else set.add(nums[i]); 
+            
+            if(set.size() > k) set.remove(nums[i-k]);
+            
+        }
+        return false;
+    }
+}
+```
+维护一个size为k的set，然后find这个set里面有没有duplicate
 
 很少考
 
-220
-
-Contains Duplicate III
+### 220 Contains Duplicate III
+```java
+class Solution {
+    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        
+        /* need to control the set at the low - t to high + t range k*/
+        
+        TreeSet<Integer> set = new TreeSet<>();
+        for(int i = 0;i<nums.length;i++){
+            
+            
+            if( set.ceiling(nums[i]) != null && (long)set.ceiling(nums[i]) - (long) nums[i] <= t) return true; // exist v-t<i<v+t
+            if( set.floor(nums[i]) != null && (long)nums[i] - (long) set.floor(nums[i]) <= t) return true;
+            
+            set.add(nums[i]);
+            
+            if(set.size() > k ) set.remove(nums[i-k]);//delete the i-k keep set size = k;
+            
+        }
+        
+        return false;
+        
+    }
+}
+```
 
 很少考
 
