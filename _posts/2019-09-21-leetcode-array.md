@@ -575,48 +575,274 @@ class Solution {
     }
 }
 ```
-
+利用了treeset的ceiling和flooring的性质，找到大于
 很少考
-
-55
-
-Jump Game
-
-
-
-45
-
-Jump Game II
-
-
-
-121
-
-Best Time to Buy and Sell Stock
-
-
-
-122
-
-Best Time to Buy and Sell Stock II
-
-
-
-123
-
-Best Time to Buy and Sell Stock III
+### 跳跳跳
+## 55 Jump Game
+```java
+class Solution {
+    public boolean canJump(int[] nums) {
+        //dp
+        //维护一个长度与数组相同的dp数组
+        //dp[i]存能到达的最远距离
+        //如果前面的都不能到达i那么返回false
+        int[] dp = new int[nums.length];
+      
+        dp[0] = nums[0];
+      
+        for(int i = 1;i < nums.length;i++){
+            dp[i] = Math.max(i+nums[i],dp[i-1]);
+            if(dp[i-1] < i){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+找出是否能跳到终点，子问题叠加就是是否能到每一个节点，那每一个子问题就是，判断前面节点是否能跳到下一个节点，而且解决这种子问题不影响最后的结果，我们可以用贪心算法的递推方式，把节点中能达到的最远距离保存，然后只需要判断前一个节点能否到达下一个节点即可。
 
 
 
-188
+### 45 Jump Game II
+```java
+class Solution {
+    public int jump(int[] nums) {
+        //bfs 遍历
+        //图的最短距离
+        if(nums.length == 0) return 0;
+        Deque<Integer> queue = new LinkedList<>();
+        int count = 0;
+        int top = 0;
+        queue.add(top);
+        boolean[] visited = new boolean[nums.length];
+        while(!queue.isEmpty()){
+            top = queue.poll();
+            if(top+nums[top] >= nums.length-1){
+                    //corner case 已经在最后一个节点上就直接输出count
+                    return top == nums.length-1?count:count+1;
+             } 
+            int tmp = top+1+nums[top+1];
+            queue.add(top+1);
+            for(int i = top+1;i <= top + nums[top];i++){
+                
+                if(visited[i] == false && i+nums[i] > tmp){
+                    queue.poll();
+                    queue.add(i);
+                    tmp = i+nums[i];
+                    visited[i] = true;
+                }
 
-Best Time to Buy and Sell Stock IV
+            }
+            count++;
+        }
+        return count;
+    }
+}
+```
+```java
+class Solution {
+    public int jump(int[] nums) {
+        
+        //if(last + nums[last] > i){ dp[i] = dp[last]+1}
+        //和word break那题有异曲同工之妙
+        int[] dp = new int[nums.length];
+        dp[0] = 0;
+        int last = 0;
+        for(int i = 1;i < nums.length;i++){
+           for(int j = last;j < i;j++){
+               if(j+nums[j] >= i){
+                 dp[i] = dp[j]+1;
+                 last = j;
+                 break;
+               }
+          }
+        }
+        return dp[nums.length-1];
+    }
+}
+```
+最直观的方法就是利用bfs求图的最短距离，当然这道题讨论最优解需要用贪心算法，先用动态规划想法很容易想出递推公式为dp[i] = dp[j]+1;其中j在[0,i)之间最先满足j+nums[j] > i，然后再想因为i是递增的所以满足的j实际上也是递增的，所以j的范围实际上是[上一个j，i）。这样我们就可以得到一个为O(n)时间复杂度的算法。
 
 
+### 股票全家桶
+## 121 Best Time to Buy and Sell Stock
+```java
+class Solution {
+    public int maxProfit(int[] prices) {  
+        if(prices == null || prices.length == 0){
+               return 0;
+        }
+        //array
+        //one pass
+         int min = Integer.MAX_VALUE;
+         int res = 0;
+         for(int i = 0;i < prices.length;i++){
+             //find min 
+             min = Math.min(min,prices[i]);
+             //find res (candidate = prices[i]-min)
+             res = Math.max(res,prices[i]-min);
+         }
+         return res;
+    }
+}
+```
+股票只需买一次，这道题实际上可以说有贪心算法的思想，就是寻找当前元素前最小的元素，之后让后面的元素和这个元素相减，而后面的元素如果小于最小元素，则替换掉他，因为即使解出现在后面也与前面元素无关。
 
-309
 
-Best Time to Buy and Sell Stock with Cooldown
+### 122 Best Time to Buy and Sell Stock II
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        if(prices == null || prices.length == 0){
+                return 0;
+        }
+        //greedy
+        //证明假如存在一个n，m
+        //1,n,m升序，且m-1大于分别greedy方式 m-n+n-1=m-1 和greedy方式相等
+        //所以不存在这样的方式
+        //所以最优解为找到一个比他大的元素就卖掉
+        int res = 0,tmp = prices[0];
+        for(int i = 0;i < prices.length;i++){
+            if(prices[i] > tmp){
+               res += prices[i] - tmp;
+            }
+            tmp = prices[i];
+        }
+        return res;
+    }
+}
+
+```
+这道题也很简单，也是用了贪心算法的思想one pass，只要后面的值比前面的大，就产生交易，如果比前面的小，就不买前一个，买后一个，所以只要每次把tmp替换成上一个元素，然后比较现在这个元素和前一个的差值就可以了。
+
+
+### 123 Best Time to Buy and Sell Stock III
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+
+        if(prices.length == 0) return 0;
+
+        //array
+        //系列中最复杂的一道题
+        //设定两个dp数组
+        //第一个代表第i天交易j次得到的最大值
+        //第二个代表全局在第i天交易j次得到的最大值
+        int n = prices.length;
+        int[][] global = new int[n][3];
+        int[][] local = new int[n][3];
+        //递推公式
+        // diff = prices[i] - prices[i-1]
+        //local[i][j] = max(global[i-1][j-1]+max(diff,0),local[i-1][j]+diff)
+        //global[i][j] = max(local[i][j],global[i-1][j])
+        for(int i = 1;i < n;i++){
+            int diff = prices[i] - prices[i-1];
+            for(int j = 1; j <= 2;j++){
+                local[i][j] = Math.max(global[i-1][j-1]+Math.max(diff, 0), local[i-1][j]+diff);
+                global[i][j] = Math.max(local[i][j], global[i-1][j]);
+            }
+
+        }
+        return global[n-1][2];
+    }
+}
+```
+O(n)spaceO(n)
+具体内容注释里面已经提到，实际上是典型的local，global型的动态规划类型题，取到当前值和全局对比，后面总结动态规划类型时会再总结一遍。local[i][j]=max(global[i-1][j-1]+max(diff,0),local[i-1][j]+diff)
+可以这样来理解：
+第 i 天卖第 j 支股票的话，一定是下面的一种：
+
+1. 今天刚买的
+那么 Local(i, j) = Global(i-1, j-1)
+相当于啥都没干
+
+2. 昨天买的
+那么 Local(i, j) = Global(i-1, j-1) + diff
+等于Global(i-1, j-1) 中的交易，加上今天干的那一票
+
+3. 更早之前买的
+那么 Local(i, j) = Local(i-1, j) + diff
+昨天别卖了，留到今天卖
+
+
+### 188 Best Time to Buy and Sell Stock IV
+```java
+class Solution {
+    public int maxProfit(int k,int[] prices) {
+
+        if(prices.length == 0) return 0;
+
+        //array
+        //系列中最复杂的一道题
+        //设定两个dp数组
+        //第一个代表第i天交易j次得到的最大值
+        //第二个代表全局在第i天交易j次得到的最大值
+        
+        //递推公式
+        // diff = prices[i] - prices[i-1]
+        //local[i][j] = max(global[i-1][j-1]+max(diff,0),local[i-1][j]+diff)
+        //global[i][j] = max(local[i][j],global[i-1][j])
+        //用通用公式MLE，所以k > prices.length时退化为贪心算法
+        if( k >= prices.length){
+               return maxprofitgreedy(prices);
+        }
+        int n = prices.length;
+        int[][] global = new int[n][k+1];
+        int[][] local = new int[n][k+1];
+        for(int i = 1;i < n;i++){
+            int diff = prices[i] - prices[i-1];
+            for(int j = 1; j <= k;j++){
+                local[i][j] = Math.max(global[i-1][j-1]+Math.max(diff, 0), local[i-1][j]+diff);
+                global[i][j] = Math.max(local[i][j], global[i-1][j]);
+            }
+        }
+        return global[n-1][k];
+    }
+    private int maxprofitgreedy(int[] prices){
+        int maxprofit = 0,tmp = prices[0];
+        for(int i = 1;i < prices.length;i++){
+            if(prices[i] - tmp < 0){
+                tmp = prices[i];
+            }
+            else{
+                maxprofit += prices[i] - tmp;
+                tmp = prices[i];
+            }
+        }
+        return maxprofit;
+    }
+}
+```
+由上一题的递推公式可以很轻松的解决这道题，但是注意如果k > prices.length的话，会产生mle，所以这时候要退化成第二题的贪心算法来解决。
+
+
+### 309 Best Time to Buy and Sell Stock with Cooldown
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+          
+         if(prices == null || prices.length == 0){
+               return 0;  
+         }
+         //array
+         //dp
+         int len = prices.length;
+         int[] buy = new int[len];
+         int[] sell = new int[len];
+          
+         sell[0] = 0;
+         buy[0] = -prices[0];
+         for(int i = 1; i < prices.length;i++){
+             buy[i] = Math.max((i > 2?sell[i-2]:0)-prices[i],buy[i-1]);
+             sell[i] = Math.max(buy[i-1]+prices[i],sell[i-1]);
+         }
+         return sell[len-1];
+    }
+}
+```
+这道题给定的条件是，卖出需要一个休息期再买，所以前一个操作为买的最大值是buy[i] = sell[i-2]-prices[i]或者buy[i-1]
+卖的比较直观sell[i] = buy[i-1]+prices[i]或者sell[i-1]
 
 
 
