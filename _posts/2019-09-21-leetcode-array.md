@@ -845,36 +845,247 @@ class Solution {
 卖的比较直观sell[i] = buy[i-1]+prices[i]或者sell[i-1]
 
 
+## 看你能装多少水
+### 11 Container With Most Water
+```java
+class Solution {
+    public int maxArea(int[] height) {
+        if(height.length == 0){
+           return 0;
+        }
+        //Arrays
+        int end = height.length-1;
+        int start = 0;
+        int max = 0;
+        while(start < end){
+            max = Math.max(max,Math.min(height[start],height[end])*(end-start));
+            if(height[start] < height[end]){
+                 start++;
+            }
+            else{
+                 end--;
+            }
+        }
+        return max;
+    }
+}
+```
+非常简单的双指针问题，能装水的大小取决于短的那个边，所以只要一直更新短的边就能得到最值。
 
-11
 
-Container With Most Water
+### 42 Trapping Rain Water
+### 好题做5遍
+```java
+class Solution {
+    public int trap(int[] height) {
+        //array
+        //two pointer
+        int left = 0, right = height.length-1,res = 0,cur = 0;
+        while(left < right){
+            if(height[left] < height[left+1]){
+                left++;
+                continue;
+            }
+            if(height[right] < height[right-1]){
+                right--;
+                continue;
+            }
+            if(height[left] < height[right]){
+                cur = left+1;
+                while(height[left] > height[cur]){
+                    res += height[left]-height[cur];
+                    cur++;
+                }
+                left = cur;
+            }
+            else{
+                cur = right-1;
+                while(height[right] > height[cur]){
+                    res += height[right]-height[cur];
+                    cur--;
+                }
+                right = cur;
+            }
+        }
+        return res;
+    }
+}
+```
+双指针，非常经典的一道双指针类型题，其双指针解法思想和11差不多，但是需要分析的情况比较多
+1.left < left+1 需要更新left
+2.right < right-1 需要更新right
+3.height[left] < height[right],一直更新left右边指针直到到达大于height[left];
+4.height[left] > height[right],一直更新right左边指针直到到达大于height[right];
+常犯的错误是用while来更新left和right指针，而这其实会有使得循环中间left > right让ArrayIndex溢出的风险
+O(n)级别
+也可以用单调栈to do 单调栈
+https://www.cnblogs.com/grandyang/p/8887985.html
+## 递增怎么找？
+### 334 Increasing Triplet Subsequence
+```java
+class Solution {
+    public boolean increasingTriplet(int[] nums) {
+         //array
+         //想法是找到两个指针small，big，small < big
+         //如果存在一个数大于这两个指针，则存在这样的子序列
+         //否则没有
+         int nums1 = Integer.MAX_VALUE;
+         int nums2 = Integer.MAX_VALUE;
+         for(int n:nums){
+             if(nums1 >= n) nums1 = n;//
+             else if(nums2 >= n) nums2 = n;//
+             else return true;
+         }
+        return false;
+    }
+}
+
+```
+找到连续性三个数递增，存在两个数small，big找到一个比这两个数还小的数就返回true，否则返回false
+
+### 128 Longest Consecutive Sequence
+```java
+class Solution {
+        class UnionFind {
+           private int count = 0;
+           private int[] parent, rank;
+           
+           public UnionFind(int n) {
+               count = n;
+               parent = new int[n];
+               rank = new int[n];
+               for (int i = 0; i < n; i++) {
+                   parent[i] = i;
+               }
+           }    
+           public int find(int p) {
+               while (p != parent[p]) {
+                   parent[p] = parent[parent[p]];    // path compression by halving
+                   p = parent[p];
+               }
+               return p;
+           }
+           
+           public void union(int p, int q) {
+               int rootP = find(p);
+               int rootQ = find(q);
+               if (rootP == rootQ) return;
+               if (rank[rootQ] > rank[rootP]) {
+                   parent[rootP] = rootQ;
+               }
+               else {
+                   parent[rootQ] = rootP;
+                   if (rank[rootP] == rank[rootQ]) {
+                       rank[rootP]++;
+                   }
+               }
+               count--;
+           }
+           
+           public int count() {
+               return count;
+           }
+        }
+    public int longestConsecutive(int[] nums) {
+        UnionFind uf = new UnionFind(nums.length);
+        if(nums.length == 0) return 0;
+        Map<Integer,Integer> map = new HashMap<>();
+        for(int i = 0;i < nums.length;i++){
+            if(map.containsKey(nums[i])) continue;
+            if(map.containsKey(nums[i]-1)){
+                uf.union(i, map.get(nums[i]-1));
+            }
+            if(map.containsKey(nums[i]+1)){
+                uf.union(i, map.get(nums[i]+1));
+            }
+            map.put(nums[i],i);  
+        }
+        int[] res = new int[nums.length];
+        for(int j = 0;j < nums.length;j++){
+            res[uf.find(j)]++;
+        }
+        int r = 0;
+        for(int k = 0;k < nums.length;k++){
+            r = Math.max(res[k],r);
+        }
+        return r;
+    }
+}
+
+```
+让我们找到最长的连续整数序列，但是其中元素不一定是连续的，因为刚做完friend circle所以想的是合并集的方法‘
+而一个hashmap的方法也能够满足O(n)
+```java
+public int longestConsecutive(int[] n){
+        if(n == null || n.length == 0){
+           return 0;
+        }
+        Set<Integer> set = new HashSet<>();
+        set.addAll(Arrays.stream(n).boxed().collect(Collectors.toList()));
+        int res = 1;
+        for(int num:n){
+           if(set.contains(num)){
+              int pre = num - 1;
+              int next = num + 1;
+              while(set.contains(pre)){
+                  set.remove(pre);
+                  pre--;
+              }
+              while(set.contains(next)){
+                set.remove(next);
+                  next++;
+            }
+             res = Math.max(res,next-pre-1);
+        }
+        set.remove(num);
+    }
+    return res;
+}
+```
 
 
+### 164 Maximum Gap
+```java
+class Solution {
+    public int maximumGap(int[] nums) {
+        if(nums.length == 0) return 0;
+        //array
+        //bucket sort;
+        int min = Integer.MAX_VALUE,max = Integer.MIN_VALUE;
+        int len = nums.length;
+        for(int n:nums){
+            min = Math.min(min,n);
+            max = Math.max(max,n);
+        }
+        //计算出bucket size
+        int bucket = (max-min)/len+1;
+        //计算bucket 个数
+        int count = (max-min)/bucket+1;
+        Integer[] ma = new Integer[count];
+        Integer[] mi = new Integer[count];
+        for(int n:nums){
+            //cnt计算n属于第几个bucket
+            //ma保存bucket最大值
+            //mi保存最小值
+            int cnt = (n-min)/bucket;
+           if(ma[cnt] == null) ma[cnt]=n;
+           if(mi[cnt] == null) mi[cnt]=n;
+              ma[cnt] = Math.max(ma[cnt],n);
+              mi[cnt] = Math.min(mi[cnt],n);
+        }
+        int res = 0,pre = 0;
+        for(int i = 1;i < count;i++){
+            if(ma[i] == null || mi[i] == null) continue;
+            res = Math.max(res,mi[i]-ma[pre]);
+            pre = i;
+        }
+        return res;
+    }
+}
 
-42
-
-Trapping Rain Water
-
-
-
-334
-
-Increasing Triplet Subsequence
-
-
-
-128
-
-Longest Consecutive Sequence
-
-
-
-164
-
-Maximum Gap
-
+```
 Bucket
+利用bucketsort的性质，我们不可能在sort的array中在同一个bucket中找到最大最小值，因为同一个bucket中的最大距离为bucket.size-1,而bucketsize为array中最大最小值差除以array中的数量，所以我们要找的一定是一个bucket的最小值和相邻的最大值
 
 287
 
