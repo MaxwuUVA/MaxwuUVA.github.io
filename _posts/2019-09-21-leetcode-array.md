@@ -16,7 +16,8 @@ tags:
 class Solution {
     public int removeElement(int[] nums, int val) {   
         //array
-        //two pointer   
+        //two pointer 
+        //O(n)  
         int count = 0;
         int index = 0;
         int tmp = 0;
@@ -35,7 +36,7 @@ class Solution {
     }
 }
 ```
-给定一个数组，删除给定的元素并返回一个没有该元素的数字，但是要你返回这个数组的长度len，也就是说[0,..len]中间不能有val元素
+给定一个数组，删除给定的元素并返回一个没有该元素的数组，但是要你返回这个数组的长度len，也就是说[0,..len]中间不能有val元素
 更新两个指针，一个遇到val就加1，一个遇到非val，swap然后加1.
 
 
@@ -1042,8 +1043,7 @@ public int longestConsecutive(int[] n){
     return res;
 }
 ```
-
-
+## bucket
 ### 164 Maximum Gap
 ```java
 class Solution {
@@ -1087,39 +1087,124 @@ class Solution {
 Bucket
 利用bucketsort的性质，我们不可能在sort的array中在同一个bucket中找到最大最小值，因为同一个bucket中的最大距离为bucket.size-1,而bucketsize为array中最大最小值差除以array中的数量，所以我们要找的一定是一个bucket的最小值和相邻的最大值
 
-287
+### 287 Find the Duplicate Number
+```java
+class Solution {
+    public int findDuplicate(int[] nums) {
+        //array
+        //two pointer
+        //由于重复数字的存在，则所有数字必定形成一个环[1,2,3,4,3] 0->1->2->3->4->3
+        //3,4形成闭环，那么用快慢指针先遍历一边取到相同的数字跳出，指针在环内，
+        //因为快指针每次走2，慢指针每次走1，快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。
+        //所以 head 到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。
+        //现在重新开始，head 运行到环起点 和 相遇点到环起点 的距离也是相等的，相当于他们同时减掉了 环的起点到他们相遇的点的距离
+        int slow = 0,fast = 0;
+        while(true){
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+            if(slow == fast) break;
+        }
+        int pointer = 0;
+        while(true){
+            slow = nums[slow];
+            pointer = nums[pointer];
+            if(slow == pointer) break;
+        }
+        
+       return slow;
+        
+    }
+}
+```
+由于重复数字的存在，则所有数字必定形成一个环[1,2,3,4,3] 0->1->2->3->4->3
+3,4形成闭环，那么用快慢指针先遍历一边取到相同的数字跳出，指针在环内，
+因为快指针每次走2，慢指针每次走1，快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。
+所以 head 到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。
+现在重新开始，head 运行到环起点 和 相遇点到环起点 的距离也是相等的，相当于他们同时减掉了 环的起点到他们相遇的点的距离.
 
-Find the Duplicate Number
+### 135 Candy
+```java
+class Solution {
+    public int candy(int[] ratings) {
+        //array
+        //greedy
+        //two pass
+        if(ratings == null || ratings.length == 0){
+            return 0;
+        }
+        int len = ratings.length;
+        int[] rate = new int[len];
+        Arrays.fill(rate,1);
+        for(int i = 1;i<len;i++){
+            if(ratings[i] > ratings[i-1]){
+                rate[i] = rate[i-1]+1;
+            }
+        }
+        for(int i = len-1;i >= 1;i--){
+            if(ratings[i-1] > ratings[i] && rate[i-1] <= rate[i]){
+                rate[i-1] = rate[i]+1;
+            }
+        }
+        int res = 0;
+        for(int n:rate){
+           res += n;
+        }
+        return res;
+    }
+}
+```
+贪心算法，贪心算法的难点就在于如何判断用贪心算法解题，比较泛泛的概念就是局部的最优解不会影响全局的最优解，就可以用贪心算法，这道题中显然局部的最优解不会影响全局最优解，可以尝试用
+证明贪心的正确性用反证法，也就是存在一个点不是最少分配的糖果，但是全局却是最小，这种情况显然不可能，因为如果这个值是高于周围的，那么最小值产生的全值一定小于这个值产生的全职，如果是
+低于周围的，那么显然会影响周围的分配使全局更大，所以需要求每个值的最小值
+1.该值是低于等于周围两点的赋1
+2.该值是高于周围两点，等于高的那一点加1
+3.该值是高于周围一点，等于那点加1
+但是这样也很难写出动态规划方程，因为我们求不出下一个点的分配糖果值，我们可以将比较分解
+1.对所有值赋1
+2.顺序，如果大于前一个数，就对分配前一个数多一个的糖果
+3.反序，如果大于后一个数，且后一个数分配到不少于当前的糖果，那么就分配后一个数多一个的糖果。
+很少考
 
-
-
-135
-
-Candy
+### 330 Patching Array
+```java
+class Solution {
+    public int minPatches(int[] nums, int n) {
+        
+        //array
+        //greedy
+        //find the smallest missing number
+        //eg[1,3] the smallest is 2
+        //因为前面元素的和范围是[1,2)
+        //对这个数组补2
+        int res = 0,i = 0,l = nums.length;
+        long miss = 1;
+        while(miss <= n){
+            if( i < l && miss >= nums[i]){
+                //miss > nums[i],不需要补任何数字
+                //更新miss,范围变成[1,miss+nums[i])
+                miss += nums[i++];
+            }
+            else{
+                //nums[i] 大于 miss，我们补miss并更新miss为miss+miss
+                //范围变成[1,miss+miss)
+                miss+=miss;
+                res++;
+            }
+        }
+        return res;
+    }
+}
+```
+非常好的一道思维题目对于连续数来说，让我们想一下一个不需要patch的最简单数组，事实上是一个连续数组从[2^0,2^1,..2^n]满足sum of this array number，我们如何判断需要patch呢，就是对于前一个到n的不需要patch数组，如果我们判断它能到达的范围小于我们所设定的missing number值，那么就添加一个patch，然后让范围扩大到missingnumber*2）开区间，因为取不到该值。那现在的关键就是，我们怎么找missing number呢，从上个条件可以知道，这个数组的和就是满足nopatch数组的最大范围，那么我们就设定missing number = sum+1，然后在判断对于后面这个数，是否需要patch就可以
+1.missing number = sum+1；
+2.判断nums[i+1]是否大于missing number，如果大于说明[0,i+1]是需要patch的数组，因为显然取不到missing number
+3.补missing number 然后 missingnumber = missingnumber*2；
 
 很少考
 
-330
-
-Patching Array
-
-很少考
 
 
-
-
-
-
-
-提高
-
-
-
-
-
-4
-
-Median of Two Sorted Arrays
+##4 Median of Two Sorted Arrays
 
 
 
