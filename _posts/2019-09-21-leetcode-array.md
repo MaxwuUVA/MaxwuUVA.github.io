@@ -1203,50 +1203,161 @@ class Solution {
 很少考
 
 
+## 难题hold不住
+### 4 Median of Two Sorted Arrays
+```java
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        
+        int l1 = nums1.length,l2=nums2.length,left = (l1+l2+1)/2,right = (l1+l2+2)/2;
+        
+        //trick:中位数如果left+right 为基数个时 为 （left+right）/2 + 1 个为中位数 
+        //为偶数时 （left+right）/ 2 和 （left+right）/2 + 1的平均数
+        //我们设left = (l1+l2+1)/2 奇数时和right相等，偶数时 向下取整left = (left+right)/2
+        //避免了分奇偶讨论的情况；
+        return (findKth2Array(nums1,nums2,left,0,0)+findKth2Array(nums1,nums2,right,0,0))/2.0;
+        
+        
+       
+    }
+    private double findKth2Array(int[] num1,int[] num2,int k,int start1,int start2){
+        
+        //对n1,n2分别取前k/2，比较大小，去掉小的那部分，再对剩下的两个数组做find(k-k/2)操作
+        //直到k = 0
+        //如果剩下的不足k/2，那么去掉前一个的k/2
+        //如果k = 1，比较start1和start2的值就可以
+        //如果start > length 那只需要找剩下数组的第k个元素
+        
+        if(start1 > num1.length - 1) return num2[start2+k-1]; 
+        if(start2 > num2.length - 1) return num1[start1+k-1];
+        if(k == 1) return num1[start1] < num2[start2] ? num1[start1] : num2[start2];
+        if(num1.length - start1 < k/2) return findKth2Array(num1,num2,k-k/2,start1,start2+k/2);
+        if(num2.length - start2 < k/2) return findKth2Array(num1,num2,k-k/2,start1+k/2,start2);
+        int valnum1 = num1[k/2+start1-1];
+        int valnum2 = num2[k/2+start2-1];
+        if(valnum1 > valnum2){
+            return findKth2Array(num1,num2,k-k/2,start1,start2+k/2);
+        }
+        else{
+            return findKth2Array(num1,num2,k-k/2,start1+k/2,start2);
+        }
+    }
+}
+```
+经典二分查找，在两个有序数组里查找第k个数，注释里已经说明很清楚，分别找两个数组的第k/2比较，然后去掉最小的，如果一个数组取完了，就直接剩下数组的余下数字个。
 
-##4 Median of Two Sorted Arrays
 
-
-
-321
-
-Create Maximum Number
+### 321 Create Maximum Number
+```java
+//太难了...
+```
 
 很少考
 
-327
-
-Count of Range Sum
+### 327 Count of Range Sum
+```java
+//太难了...
+```
 
 很少考
 
-289
+### 289 Game of Life
+```java
+class Solution {
+    public void gameOfLife(int[][] board) {
+        //2d array
+        //状态机
+        int[][] dir = {
+            {-1,0},{-1,1},{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1}
+        };
+        int dietodie = 0;
+        int livetolive = 1;
+        int livetodie = 2;
+        int dietolive = 3;
+        for(int i = 0;i < board.length;i++){
+            for(int j = 0;j < board[0].length;j++){
+                int count  = 0;
+                for(int k = 0;k < dir.length;k++){
+                    int col = i + dir[k][0];
+                    int row = j + dir[k][1];
+                    if(col >= 0 && col < board.length && row >= 0 && row < board[0].length){
+                       if(board[col][row] > 0 && board[col][row] < 3){
+                           //如果是live的count++
+                           count++;
+                       }    
+                    }
+                }
+                if(board[i][j] == 0){
+                    if(count == 3){
+                        board[i][j] = dietolive;
+                    }
+                    else{
+                        board[i][j] = dietodie;
+                    }
+                }else if(board[i][j] == 1){
+                    if(count == 2 || count == 3){
+                        board[i][j] = livetolive;
+                    }
+                    else{
+                        board[i][j] = livetodie;
+                    }
+                }
+            }
+        }
+       for(int i = 0;i < board.length;i++){
+            for(int j = 0;j < board[0].length;j++){
+                board[i][j] %= 2;
+            }
+        }
+        
+    }
+}
 
-Game of Life
+```
+利用状态机，dietodie = 0，livetolive = 1，livetodie = 2，dietolive = 3，如果周围是1或2，count++，然后遍历所有节点取2的model等于1时为生存
+
+## Interval
+
+### 57 Insert Interval
+```java
+class Solution {
+    public int[][] insert(int[][] intervals, int[] newInterval) {
+        //interval
+        if(intervals == null 
+           || intervals.length == 0 
+           || intervals[0].length == 0 
+           || newInterval == null 
+           || newInterval.length == 0) {
+            return new int[][] {newInterval};
+        }
+        
+        List<int []> list = new ArrayList<int[]>();
+        int insertPos = 0;
+        //merge interval
+        for(int i = 0; i < intervals.length; i ++) {
+            int [] cur = intervals[i];
+            if(newInterval[1] < cur[0]) {
+                //newend < start 加入这个interval
+                list.add(cur);
+            } else if (newInterval[0] > cur[1]) {
+                //end < newstart 加入并且++pos；
+                list.add(cur);
+                insertPos ++;//找到合并的interval的位置
+            } else {
+                //其他情况合并两个interval
+                newInterval[0] = Math.min(cur[0], newInterval[0]);
+                newInterval[1] = Math.max(cur[1], newInterval[1]);
+            }   
+        }
+        list.add(insertPos,newInterval);
+        return list.toArray(new int[list.size()][2]);
+    } 
+}
+```
+O(n),
 
 
-
-
-
-
-
-
-
-Interval
-
-
-
-
-
-57
-
-Insert Interval
-
-
-
-56
-
-Merge Intervals
+### 56 Merge Intervals
 
 
 
