@@ -148,10 +148,8 @@ public class Solution extends Relation {
            nums[end] = temp;
            start++;
            end--;
-    }
-  }
-
-    }
+     }
+   }
 }
 ```
 反转数组，O(1)空间的方法应该是如果是移一位将最后一位之前的数swap i和n-1-i然后在对整个数组swap。
@@ -1354,16 +1352,44 @@ class Solution {
     } 
 }
 ```
-O(n),
-
+O(n),顺序查找可以合并的interval，并且保存这个interval所插入的位置，如果end < newstart 说明位置在下一个；
 
 ### 56 Merge Intervals
+```java
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        if(intervals.length == 0 || intervals[0].length == 0){
+            return new int[0][0];
+        }
+        //sort intervals
+        Arrays.sort(intervals,(a,b)->a[0]-b[0]);
+        //create a list store intervals
+        List<int[]> res = new ArrayList<>();
+        //get a start interval 0;
+        int[] newInterval = intervals[0].clone();
+        for(int i = 1;i < intervals.length;i++){
+            //newinterval[0] > interval[1] || newInterval[1] < interval[0]
+            //merge
+            if(newInterval[0] > intervals[i][1] || newInterval[1] < intervals[i][0]){
+                  res.add(newInterval);
+                  newInterval = intervals[i].clone();
+            }else{
+                  newInterval[0] = newInterval[0] < intervals[i][0] ?  newInterval[0] : intervals[i][0];
+                  newInterval[1] = newInterval[1] > intervals[i][1] ?  newInterval[1] : intervals[i][1];
+            }
+        }
+        res.add(newInterval);//corner case
+        return res.toArray(new int[res.size()][2]);
+    }
+}
+```
+合并interval，先对所有的interval进行排序，然后再判断是否合并interval，有个小trick就是遍历时候遍历到最后会变成遍历不到最后一位，需要跳出循环后再补一位。
+merge interval的模版方法
+//如果 新的start 大于 找到interval的end 或者 新的end 大于找到的interval的start那么就无需合并，更新新的interval
+//否则的话，合并新的interval，找到小的成为新start，找到大的成为新end
 
 
-
-252
-
-Meeting Rooms
+### 252 Meeting Rooms
 
 
 
