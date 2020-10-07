@@ -503,7 +503,7 @@ class Solution {
 对第一题只改了一个条件，就是单词可以相同了，这里用到一个小trick就是当两个单词相同时，我们用指针找到两个单词时，对他们进行swap操作，保证两个单词不在一个位置。
 
 ## 查重
-###217 Contains Duplicate
+### 217 Contains Duplicate
 ```java
 class Solution {
     public boolean containsDuplicate(int[] nums) {
@@ -1390,62 +1390,378 @@ merge interval的模版方法
 
 
 ### 252 Meeting Rooms
+```java
+class Solution {
+    public boolean canAttendMeetings(int[][] intervals) {  
+        //interval  
+        Arrays.sort(intervals,(a,b)->(a[0]-b[0]));
+        for(int i = 1; i < intervals.length;i++){
+            if(intervals[i][0] < intervals[i-1][1]){
+                return false;
+            }
+        }
+        
+        return true;
+        
+    }
+}
+```
+排序，然后对所有的时间进行比较，如果有overlap，返回false。
 
 
+### 253 Meeting Rooms II
+```java
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+        
+        if(intervals.length == 0){
+            return 0;
+        }
+      
+        Arrays.sort(intervals,new Comparator<int[]>(){
+            public int compare(int[] a,int[] b){
+                return a[0]-b[0];
+            }
+        });
+        //按顺序遍历整个数组，因为是以开始时间为排序所以可以按序寻找overlap
+        //开始时间，要大于最早结束的会议时间，所以，用一个最小堆来存会议室的结束时间与开始时间比较
+        //如果开始时间早于最早结束时间，那么新开一个会议室
+        //如果符合，不需要新开，新的结束时间重新推回堆
+        PriorityQueue<int[]> heap = new PriorityQueue<>(new Comparator<int[]>(){
+            public int compare(int[] a, int[] b){
+                return a[1]-b[1];
+            }
+        });
+      
+        heap.add(intervals[0]);
+      
+        for(int i = 1;i < intervals.length;i++){
+            int[] tmp = heap.peek();
+            if(intervals[i][0] < tmp[1]){
+                heap.add(intervals[i]);
+            }
+            else{
+                heap.poll();
+                heap.add(intervals[i]);
+            }
+        }
+       
+        return heap.size();
+    }
+}
+```
+思想实际上是一种贪心算法，以开始时间排序，比较前一个的开始时间和结束时间，实际上是找overlap的最少数量，局部的最少显然是全局的最小值
+按顺序遍历整个数组，因为是以开始时间为排序所以可以按序寻找overlap
+开始时间，要大于最早结束的会议时间，所以，用一个最小堆来存会议室的结束时间与开始时间比较
+如果开始时间早于最早结束时间，那么新开一个会议室
+如果符合，不需要新开，新的结束时间重新推回堆
 
-253
+### 352 Data Stream as Disjoint Intervals
+```java
+class SummaryRanges {
 
-Meeting Rooms II
+    /** Initialize your data structure here. */
+    //https://leetcode.com/problems/data-stream-as-disjoint-intervals/discuss/371756/JAVA-treemap-solution
+    //比较清晰的讲解
+    TreeMap<Integer,Integer> treemap = new TreeMap<>();
+    public SummaryRanges() {
+        
+    }
+    public void addNum(int val) {
+        //找到floor
+        Integer pre = treemap.floorKey(val);
+        //找到ceil
+        Integer next = treemap.ceilingKey(val);
+        //如果 floor所处的区间[floor,treemap.get(floor)] 包含val，就返回
+        if(pre!=null && treemap.get(pre)>=val){
+            return;
+        }
+        //同理，如果next等于val返回
+        if(next!=null && next == val){
+            return;
+        }
+        
+        int start = val;
+        int end = val;
+        //如果恰好val是next的前一个数，那更新interval[val,get(next)]
+        if(next!=null && next-1==val){
+            end = treemap.get(next);
+            treemap.remove(next);
+        }
+        //如果恰好val是get(pre)的后一个数，那更新interval[pre,val]
+        if(pre!=null && treemap.get(pre)+1==val){
+            start = pre;
+            treemap.remove(pre);
+        }
+        //加入treemap
+        treemap.put(start, end);
+        //整个过程所有操作为O(nlgn);
+    }
+    
+    public int[][] getIntervals() {
+        List<int[]> res = new ArrayList<>();
+        for(Integer start:treemap.keySet()){
+           res.add(new int[]{start,treemap.get(start)});
+        }
+      
+        return res.toArray(new int[res.size()][2]);
+        
+    }
+}
+```
+利用TreeMap的性质，好题做5遍
+加入的新数分三种情况讨论[a,b]，1在interval[a,b]里，2,等于a-1，或者b+1，3,其他在区间外情况
+1.不变
+2,扩展interval变成[a-1,b]or[a,b+1]
+3,加入新的interval[num,num];
+重点在于找到num和a,b的关系,就可以模型化为找[num,num]在一个有序interval中位置的模型,理想的模型就是用treemap,寻找位置的时间复杂的为O(nlgn);
+
+## Counter
+
+### 239 Sliding Window Maximum
+```java
+class Solution {
+    //queue
+    //利用双端队列来做
+    //利用循环创造一个单调的双端队列
+    //单调栈，单调队列
+    //优化空间思路，因为对于求一个滑动窗口的最值，最值index前的数是可以排除的
+    //所以只保存最值及其之后值的顺序，到index删除掉
+    private void inQueue(Deque<Integer> deque,int n,int[] nums){
+            //保证queue的单调性
+            // deque顺序为 max，second max....[maxindex....n]
+            while(!deque.isEmpty() && nums[n] >= nums[deque.peekLast()]){
+                 deque.pollLast();
+            }
+            deque.offer(n);
+    }
+    public int[] maxSlidingWindow1(int[] nums, int k) {
+       //time O(n);each number will push in the deque at most once and poll out at most once, so it's o(n)
+       if(nums == null || nums.length == 0){
+           return new int[]{};
+       }
+       int[] res = new int[nums.length-k+1];
+       Deque<Integer> deque = new LinkedList<>();
+       //建立前k个数的单调队列
+       for(int i = 0;i < k-1;i++){
+           inQueue(deque,i,nums);
+       }
+       //维护这个队列
+       for(int i = k-1;i < nums.length;i++){   
+           inQueue(deque,i,nums);
+           //peek为最值的index
+           res[i-k+1] = nums[deque.peekFirst()];
+           if(deque.peekFirst() == i-k+1){
+               //如果index = 当前的数，那么删除
+               deque.pollFirst();
+           }
+       }
+       return res;
+    }
+    //最大堆
+    //O(n*(lgn)^2)
+    public int[] maxSlidingWindow(int[] nums, int k) {
+         if(nums == null || nums.length == 0){
+           return new int[]{};
+         }
+         //index heap 维护一个k大小的堆
+         PriorityQueue<Integer> maxheap = new PriorityQueue<>((a,b)->(b-a));
+         int[] res = new int[nums.length-k+1];
+         int pos = 0;
+         for(int i = 0;i < nums.length;i++){
+             maxheap.offer(nums[i]);
+             if(maxheap.size() == k){
+                 res[pos++] = maxheap.peek();
+                 maxheap.remove(nums[i-k+1]);
+             }
+         }
+         return res;
+    }
+}
+```
+两种做法
+第一种是单调队列，求局部最值时，用单调数据结构是一种很巧妙的方法，思路是单调队列存最大值的index，如果新加入的大于队列后面的元素，则一直删除尾部元素，直到遇到比它大的元素，维持单调性，如果滑动数组排除的元素，是队列顶端的最值index，则删除头部元素，然后每一轮存队列头部元素。O(n)级别，
+第二种是维护一个最大堆，这个比较容易想，就是维护一个大小为k的最大堆，然后吧滑动窗口排除的元素删除出堆。
+
+### 295 Find Median from Data Stream
+```java
+class MedianFinder {
+
+    /** initialize your data structure here. */
+    //minheap and maxheap
+    PriorityQueue<Integer> minheap,maxheap;
+    int len;
+    public MedianFinder() {
+        
+        minheap = new PriorityQueue();
+        maxheap = new PriorityQueue<>((a,b)->(b-a));
+        len = 0;
+        
+    }
+    
+    public void addNum(int num) {
+       // keep maxheap - minheap <= 1
+       if(maxheap.size() == 0 || num <= maxheap.peek()){
+            maxheap.offer(num);
+       }
+       if(num > maxheap.peek()){
+           minheap.offer(num);
+       }
+       if(maxheap.size()-minheap.size() > 1){
+           minheap.offer(maxheap.poll());
+       }
+       if(minheap.size()-maxheap.size() > 1){
+           maxheap.offer(minheap.poll());
+       }
+       len++;
+    }
+    
+    public double findMedian() {
+        if(len % 2 == 1){
+            return (double) maxheap.size() > minheap.size() ? maxheap.peek():minheap.peek();
+        }else{
+            return (double)(maxheap.peek()+minheap.peek())/2;
+        }
+    }
+}
+```
+维护两个堆，最大最小堆，最大堆存数组的左侧，最小堆存数组的右侧，
 
 
+### 53 Maximum Subarray
+```java
+class Solution {
+    public int maxSubArray(int[] A) {
+        //dp
+        int n = A.length;
+        int[] dp = new int[n+1];
+        int max = A[0];
+        
+        for(int i = 1; i < n+1; i++){
+            dp[i] = dp[i-1] > 0 ? dp[i-1]+A[i-1]:A[i-1];
+            max = Math.max(max, dp[i]);
+        }
+        
+        return max;
+   }
+}
+```
+简单dp,需要注意的是dp保存当前数，因为必须取一个数作为以该节点为终点的最大值
+```java
+public int maxSubArray(int[] A) {
+        //divide conquer
+        if(A.length == 0) return 0;
+        return helper(A,0,A.length-1);
+   }
+   public int helper(int[] A,int left,int right){
+        if(left > right) return Integer.MIN_VALUE;
+        int mid = left+(right-left)/2;
+        int left_max = helper(A,left,mid-1);
+        int right_max = helper(A,mid+1,right);
+        int mid_max = A[mid],t = mid_max;
+        //必须从中间开始
+        for(int i = mid-1;i >= left;i--){
+              t += A[i];
+              mid_max = Math.max(mid_max,t);
+        }
+        t = mid_max;
+        for(int i = mid+1;i <= right;i++){
+              t += A[i];
+              mid_max = Math.max(mid_max,t);
+        }
+        return Math.max(mid_max,Math.max(left_max,right_max));
+   }
+}
+```
+分治法是求两边的最大和于包含中间的最大数组进行比较，时间复杂度nlgn
 
-352
-
-Data Stream as Disjoint Intervals
-
-TreeMap
-
-
-
-
-
-
-
-Counter
-
-
-
-
-
-239
-
-Sliding Window Maximum
-
-
-
-295
-
-Find Median from Data Stream
+### 325 Maximum Size Subarray Sum Equals k
+```java
+class Solution {
+    public int maxSubArrayLen(int[] nums, int k) {
+        
+           int sum = 0,max = 0;
+           Map<Integer,Integer> prefix = new HashMap();
+           for(int i= 0;i < nums.length;i++){
+               sum += nums[i];
+               if(sum == k) max = i+1;
+               else if(prefix.containsKey(sum-k)){
+                   max = Math.max(i-prefix.get(sum-k),max);
+               }
+               //greedy
+               if(!prefix.containsKey(sum)){
+                   prefix.put(sum,i);
+               }         
+           }
+      
+           return max;
+    }
+}
+```
+在表中存入0到i的和值和当前位置，假如说有key为sum-k那么可以理解为当前i值回到获得的位置的数组为sum == k并且长度为i-get(sum-k),需要注意的是，由于sum值可能重合，所以
+当然要存入比较小的位置才能用到获得最长的子数组
 
 
+### 209 Minimum Size Subarray Sum
+```java
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        if(nums.length == 0) return 0;
+        //sliding window
+        int left = 0,right = 0,min = nums.length+1;
+        int sum = nums[0];
+        //o(n)
+        while(right < nums.length){
+            if(sum >= s ) {
+                min = Math.min(min,right-left+1);
+                sum -= nums[left];
+                left++;
+            }
+            if(sum < s){        
+                right++;
+                if(right < nums.length)
+                {
+                    sum += nums[right];//right会溢出需要加条件
+                }   
+            }
+        }
+        return min == nums.length+1?0:min;*/
+        
+    }
+}
+```
 
-53
-
-Maximum Subarray
-
-
-
-325
-
-Maximum Size Subarray Sum Equals k
-
-
-
-209
-
-Minimum Size Subarray Sum
-
-
+```java
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+      //o(nlgn)
+        //二分搜索
+        //由于都是正数所以sum一定是增序
+        int[] sum = new int[nums.length+1];
+        int min = nums.length+1;
+        sum[0] = 0;
+        for(int i = 1;i < nums.length;i++){
+            sum[i] = nums[i-1]+sum[i-1];
+        }
+        for(int i = 1;i<sum.length;i++){
+            int left = i,right = sum.length;
+            while(left < right){
+                int mid = left+(right-left)/2;
+                if(sum[mid]-sum[i-1] < s){
+                    left = mid+1;
+                }
+                else{
+                    right = mid;
+                }
+            }
+            
+            min = Math.min(left-i+1,min);
+            
+        }
+        return min == nums.length+1?0:min;
+    }
+}
+```
 
 238
 
@@ -1518,4 +1834,24 @@ Wiggle Sort
 
 Wiggle Sort II
 
-
+```java
+class solution{
+    public string maxValue(string a){
+         string max = "00000000000"//和a一样长；
+         HashSet<String> memo = new HashSet();
+         dfs(string,set);
+         return max；
+    }
+    public void dfs(string a,HashSet<String> set){
+         if(int p >= a.length){
+             return;
+         }
+         for(int i = 0;i < a.length;i++){
+             //对i和ℹ+1位置判断假如是“10”或者“00”就往下递归，否则继续循环
+             //max取最大
+             //用memo剪枝，如果memo里面有这个string就跳过
+         }
+         return；
+    }
+}
+```
