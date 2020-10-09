@@ -394,7 +394,7 @@ class Solution {
 }
 ```
 这回给定的是有序数组，求h-index，看能不能用logn时间找到，用二分查找，我们的target是第一个nums[i] >= len - i,如果在搜索过程中有相等数值，返回，没有则跳出后返回长度减指针
-Binary Search
+# Binary Search
 ## 茫茫辞海我要找到你
 ### 243 Shortest Word Distance
 ```java
@@ -1730,7 +1730,7 @@ class Solution {
     }
 }
 ```
-
+第一种方法是滑动窗口，用两个指针形成窗口，求解窗口中的值，如果sum < k 右指针向右，反之左指针向右；
 ```java
 class Solution {
     public int minSubArrayLen(int s, int[] nums) {
@@ -1762,96 +1762,315 @@ class Solution {
     }
 }
 ```
-
-238
-
-Product of Array Except Self
-
-
-
-152
-
-Maximum Product Subarray
-
-
-
-228
-
-Summary Ranges
-
-
-
-163
-
-Missing Ranges
-
-
-
-
-
-
-
-
-
-Sort
-
-
-
-
-
-88
-
-Merge Sorted Array
-
-
-
-75
-
-Sort Colors
-
-
-
-283
-
-Move Zeroes
-
-
-
-
-6
-
-Wiggle Subsequence
-
-
-
-280
-
-Wiggle Sort
-
-
-
-324
-
-Wiggle Sort II
-
+follow up中要求nlgn方法，能看出是二分搜素，由于sum是递增的，所以对于每一个点到终点利用二分搜索找到最短的sum >= k即可
+### 238 Product of Array Except Self
 ```java
-class solution{
-    public string maxValue(string a){
-         string max = "00000000000"//和a一样长；
-         HashSet<String> memo = new HashSet();
-         dfs(string,set);
-         return max；
-    }
-    public void dfs(string a,HashSet<String> set){
-         if(int p >= a.length){
-             return;
-         }
-         for(int i = 0;i < a.length;i++){
-             //对i和ℹ+1位置判断假如是“10”或者“00”就往下递归，否则继续循环
-             //max取最大
-             //用memo剪枝，如果memo里面有这个string就跳过
-         }
-         return；
+class Solution {
+    public int[] productExceptSelf(int[] nums) {      
+       /*solve o(n)*/
+        int n = nums.length;
+        int[] res = new int[n];
+        res[0]=1;
+        /* 1,2,3->6,3,2
+        ->2*3,1*3,2*1 
+        
+        first loop set res[0]=1
+        1,nums[0],nums[1]*nums[0]...
+        second loop for res[n-1], use tmp = 1 
+        ...nums[n-2]*nums[n-1],nums[n-1],1
+        muti two array */
+        for(int i = 1;i< n;i++){
+            res[i] = res[i-1]*nums[i-1];
+        }
+        int tmp = 1;
+        for(int j = n-1; j >= 0;j--){
+            res[j] = tmp*res[j];
+            tmp *= nums[j];
+        }
+        return res;
     }
 }
 ```
+不可以用除法，空间要求1，时间是n，用了一种非常巧妙的方法遍历，从左到右先让res*之前所有数的积，再从右向左做一遍这个操作，就能得到除了本身的所有值的积
+
+### 152 Maximum Product Subarray
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        //dp
+        int[] max = new int[nums.length];
+        int[] min = new int[nums.length];
+        max[0] = nums[0];
+        min[0] = nums[0];
+        int res = nums[0];
+        for(int i = 1;i < nums.length;i++){
+              max[i] = Math.max(nums[i],Math.max(nums[i]*max[i-1],nums[i]*min[i-1]));                   min[i] = Math.min(nums[i],Math.min(nums[i]*max[i-1],nums[i]*min[i-1]));
+              res = Math.max(max[i],res);
+        }
+        return res;
+    }
+}
+```
+经典两个数组dp问题，利用最大最小成功避免0的问题
+
+
+### 228 Summary Ranges
+```java
+class Solution {
+    public List<String> summaryRanges(int[] nums) {
+        //continuous
+        List<String> res = new ArrayList();
+        if(nums.length == 0 || nums == null){
+            return res;
+        }
+        //two flag start->end;
+        int start = Integer.MIN_VALUE,end = Integer.MAX_VALUE;
+        for(int i = 0;i < nums.length;i++){
+             if(!isContinous(nums[i], end)){
+                  if(start == end){
+                      res.add(Integer.toString(start));
+                  }else if(i != 0){
+                      res.add(Integer.toString(start)+"->"+Integer.toString(end));
+                  }
+                  start = nums[i];
+             }
+             end = nums[i];
+             if(i == nums.length-1){
+                if(start == end){
+                    res.add(Integer.toString(start));
+                }else{
+                    res.add(Integer.toString(start)+"->"+Integer.toString(end));
+                }
+            }
+        }
+        return res;
+    }
+    private boolean isContinous(int a,int b){
+          return a-b == 1;
+    }
+}
+```
+设定两个指针s和e，我们要输入一个string“s—>e”，那么有二种情况，s < e 就是 s->e s == e 就是 s 
+然后edge上需要注意的是0点和终点，0点s和e为初始值不能用作判断，终点无论如何需要输入，要加进list里面
+
+
+### 163 Missing Ranges
+```java
+public List<String> findMissingRanges(int[] nums, int lower, int upper) {
+        List<String> result = new ArrayList<>();
+        if (nums == null || nums.length == 0){
+            result.add(formRange(lower,upper));
+            return result;
+        }
+
+        // 1st step
+        if (nums[0] > lower){
+            result.add(formRange(lower,nums[0]-1));
+        }
+
+        // 2nd step
+        for (int i = 0; i < nums.length-1; i++){
+            if (nums[i+1] != nums[i] && nums[i+1] > nums[i] +1) {
+                result.add(formRange(nums[i]+1, nums[i+1]-1));
+            }
+        }
+
+       // 3rd step
+        if (nums[nums.length-1] < upper){
+            result.add(formRange(nums[nums.length-1]+1, upper));
+        }
+        return result;
+    }
+    
+    public String formRange(int low, int high){
+        return low == high ? String.valueOf(low) : (low + "->" + high);
+    }
+}
+```
+上一题的镜像问题，也是存在两个corner case和两种情况
+## Sort
+
+
+
+
+
+### 88 Merge Sorted Array
+```java
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+
+        int i = m - 1;
+        int j = n - 1;
+        int k = m + n - 1;
+        while(i >= 0 && j >= 0){
+            
+            nums1[k--] = (nums1[i]>nums2[j]) ? nums1[i--]:nums2[j--];
+            
+            
+        }
+        while(j >= 0){
+            
+         nums1[k--] = nums2[j--];   
+            
+        }
+    }
+}
+```
+双指针做法，直接比较最大值，因为后面不会有除了0以外的数被替换。
+
+
+### 75 Sort Colors
+```java
+class Solution
+{
+    public void sortColors(int[] nums) {
+        quicksort3way(nums,0,nums.length-1);
+    }
+    public void quicksort3way(int[] arr,int l,int r){
+
+        if(l >= r)  return;
+
+        int t = l,lt =t,gt =r+1,v = arr[l],i = l+1;
+        
+        //arr[l+1....lt] < v [lt+1...i-1] = v  [i...gt-1] unknown  [gt.....r] >v
+        //i < v swap (i,lt+1) i++; i == v i++; i>v swap(i,gt-1);
+        
+        
+        while(i < gt){
+            
+            if(arr[i] < v ) {
+                
+                swap(arr, i, lt+1);
+                
+                lt++;
+                
+            }
+            else if(arr[i] > v){
+                
+                swap(arr, i , gt-1);
+                
+                gt--;
+                continue;
+
+            }
+            
+            i++;
+            
+        }
+        swap(arr,l,lt);
+
+        quicksort3way(arr,l,lt-1);
+
+        quicksort3way(arr,gt,r);
+
+    }
+    public void swap(int[] arr,int i,int j){
+
+            int tmp = 0;
+        
+            tmp = arr[i];
+        
+            arr[i] = arr[j];
+        
+            arr[j] = tmp;
+
+    }
+}
+```
+三路快排，把大于小于和等于分为三种情况，需要更新两组指针，需要注意的是,
+arr[l+1....lt] < v [lt+1...i-1] = v  [i...gt-1] unknown  [gt.....r] >v
+这其中更新gt时不能更新i，因为交换后不能确i值的位置。当然这道题用count也许更直观一点
+
+### 283 Move Zeroes
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+         
+        int count_z = 0;
+        int num_z = 0;
+        for(int i = 0;i < nums.length;i++){
+            if(nums[i] == 0){
+                 count_z++;
+            }
+            else{
+                nums[num_z] = nums[i];
+                num_z++;
+            }
+        }
+        for(int i = num_z;i <nums.length;i++){
+             nums[i] = 0;
+        }
+        
+    }
+}
+```
+two pass方法，比较直观，直接把非零平移然后赋值0，onepass也可以但是需要swap可能operation数会多，只要在找到非零值时更新新指针的值就可以，会多出给非零值赋值非零的操作。
+
+
+
+## wiggle
+### 376 Wiggle Subsequence
+```java
+class Solution {
+    public int wiggleMaxLength(int[] nums) {
+        //dp
+        int le = nums.length,res = 0;
+        if(le == 0 || nums == null){
+            return 0;
+        }
+        int[] up = new int[le];
+        int[] down = new int[le];
+        
+        for(int i = 0;i < le;i++){
+            if(i == 0){
+              up[0] = 1;
+              down[0] = 1;
+            }
+            else if(nums[i] > nums[i-1]){
+                up[i] = down[i-1]+1;
+                down[i] = down[i-1];
+            }
+            else if(nums[i] < nums[i-1]){
+                down[i] = up[i-1]+1;
+                up[i] = up[i-1];
+            }else{
+               down[i] = down[i-1];
+               up[i] = up[i-1];
+            }
+            res = Math.max(res,Math.max(up[i],down[i]));
+        }
+        return res;
+    }
+}
+```
+dp问题，维护两个数组分别代表以第i个数为底的wiggle长度，up 和 down
+这个问题也可以用贪心算法来解决
+```java
+class Solution {
+    public int wiggleMaxLength(int[] nums) {
+        if(nums.length == 0) return 0;
+        int up = 1,down = 1;
+        int res = 0;
+        for(int i = 1;i < nums.length;i++){
+            if(nums[i] > nums[i-1]){
+                up = down+1;
+            }
+            if(nums[i] < nums[i-1]){
+                down = up+1;
+            }
+        }
+        res = Math.max(up,down);
+        return res;
+        
+    }
+}
+```
+因为该问题的子状态不影响最终状态，只需要更新两个常数就可以得到最优解
+
+### 280 Wiggle Sort
+```java
+```
+做一下
+### 324 Wiggle Sort II
+
+

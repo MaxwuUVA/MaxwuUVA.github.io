@@ -10,14 +10,45 @@ tags:
     - leetcode
     - 字符串
 ---
-28
+### 28 Implement strStr()
+```java
+class Solution {
+    public int strStr(String haystack, String needle) {
+          if(haystack.length() < needle.length()) return -1;
+          if(needle.length() == 0) return 0;
+          for(int i = 0;i < haystack.length()-needle.length()+1;i++){
+              if(haystack.substring(i).startsWith(needle)){
+                   return i;
+              }
+          }
+          return -1;
+    }
+}
+```
+利用startswith求解，简单
 
-Implement strStr()
-
-14
-
-Longest Common Prefix
-
+### 14 Longest Common Prefix
+```java
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if(strs.length == 0) return "";
+        int pos = 0;
+        StringBuilder res = new StringBuilder();
+        for(char c:strs[0].toCharArray()){
+             for(String s:strs){
+                  if(s.length()-1 < pos || s.charAt(pos) != c){
+                      return res.toString();
+                  }
+             }
+             res.append(c);
+             pos++;
+        }
+        return res.toString();
+    }
+    
+}
+```
+单指针类型，简单
 58
 
 Length of Last Word
@@ -203,13 +234,35 @@ Text Justification
 
 Valid Number
 
-157
-
-Read N Characters Given Read4
-
-158
-
-Read N Characters Given Read4 II - Call multiple times
+### 157 Read N Characters Given Read4
+```java
+/**
+ * The read4 API is defined in the parent class Reader4.
+ *     int read4(char[] buf);
+ */
+public class Solution extends Reader4 {
+    /**
+     * @param buf Destination buffer
+     * @param n   Number of characters to read
+     * @return    The number of actual characters read
+     */
+    public int read(char[] buf, int n) {
+        char[] buf4 = new char[4];
+        int offset = 0;
+        while(true){
+            int size = read4(buf4);
+            for(int i = 0;i < size && offset < n;i++){
+                buf[offset++] = buf4[i];
+            }
+            if(size == 0 || offset == n){
+                return offset;
+            }
+        }
+        
+    }
+```
+注意两个条件，file读完了和已经取得了n个数字，是下一道题的热身练习
+### 158 Read N Characters Given Read4 II - Call multiple times
 
 
 
