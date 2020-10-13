@@ -261,9 +261,41 @@ public class Solution extends Reader4 {
         
     }
 ```
-注意两个条件，file读完了和已经取得了n个数字，是下一道题的热身练习
+注意两个条件，file读完了和已经取得了n个数字，是下一道题的练习
 ### 158 Read N Characters Given Read4 II - Call multiple times
+```java
+/**
+ * The read4 API is defined in the parent class Reader4.
+ *     int read4(char[] buf4); 
+ */
 
+public class Solution extends Reader4 {
+    /**
+     * @param buf Destination buffer
+     * @param n   Number of characters to read
+     * @return    The number of actual characters read
+     */
+    private char[] tmpbuf = new char[4];
+    private int tfpoint = 0;
+    private int tfsize;
+    public int read(char[] buf, int n) {
+        int p = 0;
+        while(p < n){
+            if(tfpoint == 0){
+                tfsize = read4(tmpbuf);
+            }
+            if(tfsize == 0) break;
+            while(p < n && tfpoint < tfsize){
+                buf[p++] = tmpbuf[tfpoint++];
+            }
+            if(tfpoint >= tfsize){
+                tfpoint = 0;
+            }
+        }
+        return p;
+    }
+}
+```
 
 
 
