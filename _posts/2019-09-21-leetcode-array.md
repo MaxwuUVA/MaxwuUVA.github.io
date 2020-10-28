@@ -1247,16 +1247,52 @@ class Solution {
 
 ### 321 Create Maximum Number
 ```java
-//太难了...
+class Solution {
+    public int[] maxNumber(int[] nums1, int[] nums2, int k) {
+        int l1 = nums1.length,l2 = nums2.length;
+        int[] res = new int[k];
+        if(l1+l2 < k) return new int[0];
+        for(int i = Math.max(0,k-l2);i <= l1 && i <= k;i++){
+              int[] candidate = merge(Maxvalue(nums1,i),Maxvalue(nums2,k-i));
+              if(greater(candidate,0,res,0)) res = candidate;
+        }
+        return res;
+    }
+    public boolean greater(int[] nums1, int i, int[] nums2, int j) {
+       while (i < nums1.length && j < nums2.length && nums1[i] == nums2[j]) {
+            i++;
+            j++;
+        }
+        return j == nums2.length || (i < nums1.length && nums1[i] > nums2[j]);
+    }
+    private int[] merge(int[] n1,int[] n2){
+        int[] res = new int[n1.length+n2.length];
+        int pos = 0,i = 0,j = 0;
+        for(i = 0,j = 0;pos < res.length;pos++)
+            res[pos] = greater(n1,i,n2,j)?n1[i++]:n2[j++];
+        return res;
+    }
+    private int[] Maxvalue(int[] n,int k){
+        //greedy
+        int len = n.length;
+        int[] res = new int[k];
+        for(int i = 0, j = 0;i < len;i++){
+            while(len-i+j > k && j > 0 && res[j-1] < n[i]){
+                   j--;
+            }
+            if(j < k) res[j++] = n[i];
+        }
+        return res;
+    }
+}
 ```
-
-很少考
+这道题包括排序，贪心，是很难的一道题，我们分别对两个数字进行取最值，取最值的方法贪心算法，对当前值与之前的所有值比较。取较大值，取的值加余下值不能大于取数的长度，再对两个数组分别取值，merge俩个数组取得最大值
 
 ### 327 Count of Range Sum
 ```java
-//太难了...
-```
 
+```
+bit index tree//segment tree
 很少考
 
 ### 289 Game of Life
@@ -1810,6 +1846,75 @@ Merge Sorted Array
 
 Sort Colors
 
+### 280 Wiggle Sort
+```java
+class Solution {
+    public void wiggleSort(int[] nums) {
+        // do it in O(n) time and/or in-place with O(1) extra space
+        // bubble
+       if(nums.length == 0) return;
+        for(int i = 1;i < nums.length;i++){
+            if(i%2 == 1 && nums[i] < nums[i-1]){
+                swap(nums,i,i-1);
+            }
+            if(i%2 == 0 && nums[i] > nums[i-1]){
+                 swap(nums,i,i-1);
+            }
+        }
+    }
+    private void swap(int[] n,int a,int b){
+        int tmp = n[a];
+        n[a] = n[b];
+        n[b] = tmp;
+    }
+}
+```
+直接swap，分奇偶讨论，如果是奇数需要大于前一个数，偶数则反之。
+做一下
+### 324 Wiggle Sort II
+```java
+class Solution {
+    public void wiggleSort(int[] nums) {
+        // do it in O(n) time and/or in-place with O(1) extra space
+        int median = findKth(0,nums.length-1,nums.length/2,nums);
+        int left = 0,i = 0,n = nums.length,right = n-1;
+        while(i <= right){
+           if(nums[mapIndex(i,n)] > median){
+              swap(nums,mapIndex(left++,n),mapIndex(i++,n));
+           }else if(nums[mapIndex(i,n)] < median){
+              swap(nums,mapIndex(right--,n),mapIndex(i,n));
+           }else{
+               i++;
+           }
+        }
+    }
+    private int mapIndex(int i,int l){
+         return (1+2*i)%(l|1);
+    }
+    private int findKth(int left,int right,int k,int[] n){
+         int s = left+1;
+         int e = right;
+         if(left >= right) return n[left];
+         int pivot = n[left];
+         while(s <= e){
+            if(n[s++] > pivot) {
+               swap(n,--s,e--);
+            }
+         }
+         swap(n,e,left);
+         if(e == k) return n[e];
+         if(e < k) return findKth(e+1,right,k,n);
+         else return findKth(left,e-1,k,n);
+    }
+    private void swap(int[] n,int a,int b){
+        int tmp = n[a];
+        n[a] = n[b];
+        n[b] = tmp;
+    }
+}
+```
+mapIndex + quickselect 
+未完待续
 
 
 283
