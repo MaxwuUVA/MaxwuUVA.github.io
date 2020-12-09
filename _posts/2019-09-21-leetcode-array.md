@@ -1290,7 +1290,21 @@ class Solution {
 
 ### 327 Count of Range Sum
 ```java
-
+class Solution {
+    public int countRangeSum(int[] nums, int lower, int upper) {
+         //brute force
+         int count = 0;
+         for(int i = 0;i < nums.length;i++){
+            long res = nums[i];
+            for(int j = i+1;j < nums.length;j++){
+                if(res >= lower && res <= upper) count++;
+                res += nums[j];
+            }
+            if(res >= lower && res <= upper) count++;
+         }
+         return count;
+    }
+}
 ```
 bit index tree//segment tree
 很少考
