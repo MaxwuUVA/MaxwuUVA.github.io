@@ -116,26 +116,154 @@ two pass 思路很简单，但discuss里面有人讨论这个问题 but it still
 ```
 用另一个数组保存次数为1的index，并比较，可以把复杂度压缩到O(n+26);
 ### 383 Ransom Note
+```java
+class Solution {
+    public boolean canConstruct(String ransomNote, String magazine) {
+        //string
+        //hashmap
+        int[] map = new int[26];
+        for(char c:magazine.toCharArray()){
+            map[c-'a']++;
+        }
+        for(char n:ransomNote.toCharArray()){
+            map[n-'a']--;
+            if(map[n-'a'] < 0){
+                return false;
+            }
+        }
+        return true;        
+    }
+}
+```
+基础，俩个map
+## 交换顺序
+### 344 Reverse String
+```java
+class Solution {
+    public void reverseString(char[] s) {
+         //string
+         int left = 0, right = s.length-1;
+         while(left < right){
+             char tmp = s[left];
+             s[left] = s[right];
+             s[right] = tmp;
+             left++;
+             right--;
+         }
+    }
+}
+```
+swap
 
-344
+### 151 Reverse Words in a String
+```java
+class Solution {
+    public String reverseWords(String s) {
+        if(s == null || s.length() == 0) return "";
+        //string
+        //split
+        String[] strs = s.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for(int i = strs.length-1;i >= 0;i--){
+                if(!strs[i].equals("")){
+                    //corner case
+                    //在string前插入“ ”
+                    //防止后缀有“ ”
+                    if (sb.length() > 0) {
+                        sb.append(" ");
+                    }
+                    sb.append(strs[i]);
+                }
+        }
+        return sb.toString();
+    }
+}
+```
+比较tricky的地方就是split后会出现null元素所以要在循环里判断
 
-Reverse String
-
-151
-
-Reverse Words in a String
-
-186
-
-Reverse Words in a String II
-
-345
-
-Reverse Vowels of a String
-
-205
-
-Isomorphic Strings
+### 186 Reverse Words in a String II
+```java
+class Solution {
+    public void reverseWords(char[] s) {
+        
+        if(s == null || s.length == 0) return;
+        int start = 0;
+        for(int i = 0;i < s.length;i++){
+             if(s[i] == ' '){
+                 int end = i-1;
+                 reverse(s,start,end);
+                 start = i+1;
+             }
+             if(i == s.length-1){
+                 reverse(s,start,i);
+             }
+        }
+        reverse(s,0,s.length-1);
+        
+    }
+    private void reverse(char[] s,int start,int end){
+        while(start < end){
+            char tmp = s[start];
+            s[start] = s[end];
+            s[end] = tmp;
+            start++;
+            end--;
+        }
+    }
+}
+```
+双指针，用space找到单词然后swap这个单词，然后对整个数组进行swap 
+### 345 Reverse Vowels of a String
+```java
+/*
+ * @lc app=leetcode id=345 lang=java
+ *
+ * [345] Reverse Vowels of a String
+ */
+class Solution {
+    public String reverseVowels(String s) {
+        if(s.isEmpty()) return s;
+        char[] a = s.toCharArray();
+        int start = 0;
+        int end = s.length()-1;
+        while(start<end){
+            
+            if(!isVowels(a[start])) start++;
+            else if( !isVowels(a[end])) end--;
+            else{
+                
+                swapChar(a,start,end);
+                start++;
+                end--;
+                
+            }
+            
+        }
+        return new String(a);
+        
+    }
+    private void swapChar(char[] a,int i,int j){
+        
+        char tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+        
+    }
+    private boolean isVowels(char a){
+        
+        a = Character.toLowerCase(a);
+        if(a =='a'|| a =='e'||a =='i'||a =='o'||a =='u') return true;
+        else return false;
+           
+    }
+    
+}
+```
+双指针，头尾元音交换
+## word pattern
+### 205 Isomorphic Strings
+```java
+```
 
 293
 
@@ -290,9 +418,10 @@ class Solution {
     2. dp[i][j][len] = || dp[i][j][k] && dp[i+k][j+k][len-k] || dp[i][j+len-k][k] && dp[i+k][j][len-k];匹配到前后均为有效的返回true，均没有匹配到就返回false
 时间复杂度为O(N^4);
  
-179
+### 179 Largest Number
+```java
 
-Largest Number
+```
 
 6
 
@@ -690,13 +819,150 @@ class Solution {
   }
 }
 ```
-LinkedListMap 有序字典法
+LinkedListMap 有序字典法 维护一个linkedmap大小为k，如果大于k那么删除最左端点元素，如果有这个元素那么更新位置
+
 ### 395 Longest Substring with At Least K Repeating Characters
+```java
+class Solution {
+    public int longestSubstring(String s, int k) {
+        if (s == null || s.length() == 0){
+           return 0;
+        }
+        int max = 0;
+        for (int numTargetDistinct = 1; numTargetDistinct <= 26; numTargetDistinct++){
+            int len = longestDistinct(s, k, numTargetDistinct);
+            max = Math.max(max, len);
+        }
+        return max;
+    }
+    private int longestDistinct(String s, int k, int numTargetDistinct){
+        Map<Character, Integer> map = new HashMap<>();
+        int start = 0;
+        int end = 0;
+        int uniqueNum = 0;
+        int noLessThanKNum = 0;
+        int max = 0;
+        while (end < s.length()){
+            char cEnd = s.charAt(end);
+            map.put(cEnd, map.getOrDefault(cEnd, 0) + 1);
+            if (map.get(cEnd) == 1){
+                uniqueNum++;
+            }
+            if (map.get(cEnd) == k){
+                noLessThanKNum++;
+            }
+            end++;
+            while (uniqueNum > numTargetDistinct){
+                char cStart = s.charAt(start);
+                if (map.get(cStart) == k){
+                    noLessThanKNum--;
+                }
+                if (map.get(cStart) == 1){
+                    uniqueNum--;
+                }
+                map.put(cStart, map.get(cStart) - 1);
+                start++;
+            }
+            if (uniqueNum == noLessThanKNum){
+                max = Math.max(max, end - start);
+            }
+        }
+        return max;
+    }
+}
+```
+仍然可以用sliding window 法，找一个字符串每个字母重复k次以上的子字符串，我们假定答案可以拥有1-26个不同元素
+iterate 1-26，维护两个数字，unique的元素和大于k的元素，如果两个相等那么就符合条件，否则不符合，time O(26n);
+```java
+class Solution {
+    int max = 0;
+    public int longestSubstring(String s, int k) {
+        //String
+        //recursion
+        if(s == null || s.length() < k){
+            return 0;
+        }
+        int[] map = new int[26];
+        for(char c:s.toCharArray()){
+            map[c-'a']++;
+        }
+        char flag = '1';
+        for(int i = 0;i < map.length;i++){
+           if(map[i] != 0 && map[i] < k){
+               flag = (char)(i+'a');
+           }   
+        }
+        if(flag == '1'){
+            return s.length();
+        }
+        String[] strs = s.split(String.valueOf(flag));
+        int max = 0;
+        for(String str:strs){
+            max = Math.max(max,longestSubstring(str,k));
+        }
+        return max;
+    }
+}
+```
+更直观的方法是，用这个字符串中小于k的元素split，因为他本来就不在答案内，所以当str里面没有小于k的元素时，就符合条件，写作递归的形式，比较这些元素的大小。
 
 ### 159 Longest Substring with At Most Two Distinct Characters
-
-
-
+```java
+class Solution {
+    public int lengthOfLongestSubstringTwoDistinct(String s) {
+        
+        if(s == null || s.length() == 0) return 0;
+        //string 
+        //sliding window改进
+        Map<Character,Integer> map = new HashMap<>();
+        int res = 0,l = 0,r = 0,len = s.length();
+        while(r < len){
+            if(map.size() <= 2){
+                char c = s.charAt(r);
+                map.put(c,r);
+                r++;
+            }
+            if(map.size() > 2){
+                int pointer = len - 1;
+                for(int p:map.values()){
+                    pointer = Math.min(pointer,p);
+                }
+                char head = s.charAt(pointer);
+                map.remove(head);
+                l = pointer+1;
+            }
+            res = Math.max(res,r-l);   
+            
+        }
+        return res;           
+    }
+}
+```
+340题的简化版，也是用两种方法，第一种hashmap存位置，并更新，如果size大于2，遍历map并找到最左边的位置，删除更新最大值。
+```java
+class Solution {
+    public int lengthOfLongestSubstringTwoDistinct(String s) {
+         if(s == null || s.length() == 0) return 0;
+         int l = 0,r = 0,max = 0;
+         LinkedHashMap<Character,Integer> lmap  = new LinkedHashMap();
+         while(r < s.length()){
+              if(lmap.size() < 2){
+                  lmap.put(s.charAt(r),r++);
+              }else if(lmap.size() == 2 && lmap.containsKey(s.charAt(r))){
+                  lmap.remove(s.charAt(r));
+                  lmap.put(s.charAt(r),r++);
+              }else{
+                  Map.Entry<Character,Integer> leftmost = lmap.entrySet().iterator().next();
+                  lmap.remove(leftmost.getKey());
+                  l = leftmost.getValue()+1;
+              }
+              max = Math.max(max,r-l);
+         }
+         return max;
+    }
+}
+```
+有序字典法，几乎和340题是一样的思路。
 
 
 ### Palindrome
