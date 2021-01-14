@@ -1781,7 +1781,7 @@ class Solution {
     }
 }
 ```
-
+双指针，非常简单
 ```java
 class Solution {
     public int minSubArrayLen(int s, int[] nums) {
@@ -1813,23 +1813,97 @@ class Solution {
     }
 }
 ```
+二分搜索
+### 238 Product of Array Except Self
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        
+       /*solve o(n)*/
+        int n = nums.length;
+        int[] res = new int[n];
+        res[0]=1;
+        /* 1,2,3->6,3,2
+        ->2*3,1*3,2*1 
+        
+        first loop set res[0]=1
+        1,nums[0],nums[1]*nums[0]...
+        second loop for res[n-1], use tmp = 1 
+        ...nums[n-2]*nums[n-1],nums[n-1],1
+        muti two array */
+        for(int i = 1;i< n;i++){
+            
+            res[i] = res[i-1]*nums[i-1];
+            
+        }
+        int tmp = 1;
+        for(int j = n-1; j >= 0;j--){
+            
+            res[j] = tmp*res[j];
+            tmp *= nums[j];
+    
+        }
+        
+        return res;
+    }
+}
+```
+two pass 题目要求不用除法，先从前到后在从后到前，每一位可以得到(one pass)nums[0..i-1]*(two pass)nums[i+1...l]
 
-238
-
-Product of Array Except Self
-
-
-
-152
-
-Maximum Product Subarray
-
-
-
-228
-
-Summary Ranges
-
+### 152 Maximum Product Subarray
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        //dp
+        int[] max = new int[nums.length];
+        int[] min = new int[nums.length];
+        max[0] = nums[0];
+        min[0] = nums[0];
+        int res = nums[0];
+        for(int i = 1;i < nums.length;i++){
+              max[i] = Math.max(nums[i],Math.max(nums[i]*max[i-1],nums[i]*min[i-1]));                   min[i] = Math.min(nums[i],Math.min(nums[i]*max[i-1],nums[i]*min[i-1]));
+              res = Math.max(max[i],res);
+        }
+        return res;
+    }
+}
+```
+最大最小dp，记录以每个index为底的最大值和最小值，最大值和最小值能交换，记录每个最大值
+### 228 Summary Ranges
+```java
+class Solution {
+    public List<String> summaryRanges(int[] nums) {
+        //continuous
+        List<String> res = new ArrayList();
+        if(nums.length == 0 || nums == null){
+            return res;
+        }
+        int start = Integer.MIN_VALUE,end = Integer.MAX_VALUE;
+        for(int i = 0;i < nums.length;i++){
+             if(!isContinous(nums[i], end)){
+                  if(start == end){
+                      res.add(Integer.toString(start));
+                  }else if(i != 0){
+                      res.add(Integer.toString(start)+"->"+Integer.toString(end));
+                  }
+                  start = nums[i];
+             }
+             end = nums[i];
+             if(i == nums.length-1){
+                if(start == end){
+                    res.add(Integer.toString(start));
+                }else{
+                    res.add(Integer.toString(start)+"->"+Integer.toString(end));
+                }
+            }
+        }
+        return res;
+    }
+    private boolean isContinous(int a,int b){
+          return a-b == 1;
+    }
+}
+```
 
 
 163
@@ -1931,29 +2005,3 @@ mapIndex + quickselect
 未完待续
 
 
-283
-
-Move Zeroes
-
-
-
-
-6
-
-Wiggle Subsequence
-
-
-
-280
-
-Wiggle Sort
-
-
-
-324
-
-Wiggle Sort II
-
-```java
-
-```
