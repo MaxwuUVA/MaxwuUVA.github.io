@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      leetcode 400 数组 篇
-subtitle:   
+subtitle:   从Array中remove系列
 date:       2019-09-21
 author:     953max
 header-img: 
