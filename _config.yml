@@ -1,6 +1,6 @@
 # Site settings
-title: BY Blog
-SEOTitle: 953的博客 | BY Blog
+title: 953 Blog
+SEOTitle: 953的博客
 header-img: img/post-bg-desk.jpg
 email: lw4fk@virginia.edu
 description: "Every failure is leading towards success."
@@ -18,12 +18,8 @@ sidebar-avatar: /img/profile.jpg      # use absolute URL, seeing it's used in bo
 
 # SNS settings
 RSS: false
-# weibo_username:     qiubaiying
-#zhihu_username:     qiubaiying
-#github_username:    qiubaiying
-#facebook_username:  baiying.qiu.7
-#jianshu_username:   e71990ada2fd
-#twitter_username:   qiubaiying
+#github_username:    maxwuuva
+#facebook_username:  linfengwu
 
 
 
