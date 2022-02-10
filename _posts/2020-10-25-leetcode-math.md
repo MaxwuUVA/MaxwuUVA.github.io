@@ -1,19 +1,20 @@
 ---
+
 layout:     post
 title:      leetcode 400 数学 篇
 subtitle:   
 date:       2020-10-25
 author:     953max
 header-img: 
-catalog: 	 true
+catalog:      true
 tags:
     - leetcode
     - 数学
+
 ---
+
 1.3.3. Math
 基础 
-
-
 
 7
 Reverse Integer
@@ -54,11 +55,7 @@ Water and Jug Problem
 204
 Count Primes
 
-
-
-
 Sum
-
 
 1
 Two Sum
@@ -78,11 +75,7 @@ Two Sum II - Input array is sorted
 18
 4Sum
 
-
-
-
 很少考
-
 
 231
 Power of Two

@@ -5,12 +5,15 @@ subtitle:
 date:       2019-09-24
 author:     953max
 header-img: 
-catalog: 	 true
+catalog:      true
 tags:
     - leetcode
     - 字符串
+
 ---
+
 ### 28 Implement strStr()
+
 ```java
 class Solution {
     public int strStr(String haystack, String needle) {
@@ -25,9 +28,11 @@ class Solution {
     }
 }
 ```
+
 利用startswith求解，简单
 
 ### 14 Longest Common Prefix
+
 ```java
 class Solution {
     public String longestCommonPrefix(String[] strs) {
@@ -45,23 +50,29 @@ class Solution {
         }
         return res.toString();
     }
-    
+
 }
 ```
+
 单指针类型，简单
+
 ### 58 Length of Last Word
+
 ```java
 class Solution {
     public int lengthOfLastWord(String s) {
         String[] strs = s.split(" ");
         if(s.length() == 0 || strs.length == 0) return 0;
         return strs[strs.length-1].length();
-        
+
     }
 }
 ```
+
 split用法，trim也可以；
+
 ### 387 First Unique Character in a String
+
 ```java
 class Solution {
     public int firstUniqChar(String s) {
@@ -79,18 +90,20 @@ class Solution {
             }
         }
         return -1;
-        
+
     }
 }
 ```
+
 two pass 思路很简单，但discuss里面有人讨论这个问题 but it still can be improved, since you read through the whole array twice. Take an example of DNA sequence: there could be millions of letters long with just 4 alphabet letter. What happened if the non-repeated letter is at the end of DNA sequence? This would dramatically increase your running time since we need to scan it again.
 更新one pass 方法
+
 ```java
  public int firstUniqChar(String s) {
         //string
         //map
         //one pass
-        
+
         if(s.length() == 0) return -1;
         int[] map = new int[26];
         int[] index = new int[26];
@@ -110,12 +123,15 @@ two pass 思路很简单，但discuss里面有人讨论这个问题 but it still
             }
         }
         return res == s.length() ? -1:res;
-        
+
     }
 }
 ```
+
 用另一个数组保存次数为1的index，并比较，可以把复杂度压缩到O(n+26);
+
 ### 383 Ransom Note
+
 ```java
 class Solution {
     public boolean canConstruct(String ransomNote, String magazine) {
@@ -135,9 +151,13 @@ class Solution {
     }
 }
 ```
+
 基础，俩个map
+
 ## 交换顺序
+
 ### 344 Reverse String
+
 ```java
 class Solution {
     public void reverseString(char[] s) {
@@ -153,9 +173,11 @@ class Solution {
     }
 }
 ```
+
 swap
 
 ### 151 Reverse Words in a String
+
 ```java
 class Solution {
     public String reverseWords(String s) {
@@ -179,13 +201,15 @@ class Solution {
     }
 }
 ```
+
 比较tricky的地方就是split后会出现null元素所以要在循环里判断
 
 ### 186 Reverse Words in a String II
+
 ```java
 class Solution {
     public void reverseWords(char[] s) {
-        
+
         if(s == null || s.length == 0) return;
         int start = 0;
         for(int i = 0;i < s.length;i++){
@@ -199,7 +223,7 @@ class Solution {
              }
         }
         reverse(s,0,s.length-1);
-        
+
     }
     private void reverse(char[] s,int start,int end){
         while(start < end){
@@ -212,8 +236,11 @@ class Solution {
     }
 }
 ```
+
 双指针，用space找到单词然后swap这个单词，然后对整个数组进行swap 
+
 ### 345 Reverse Vowels of a String
+
 ```java
 /*
  * @lc app=leetcode id=345 lang=java
@@ -227,42 +254,47 @@ class Solution {
         int start = 0;
         int end = s.length()-1;
         while(start<end){
-            
+
             if(!isVowels(a[start])) start++;
             else if( !isVowels(a[end])) end--;
             else{
-                
+
                 swapChar(a,start,end);
                 start++;
                 end--;
-                
+
             }
-            
+
         }
         return new String(a);
-        
+
     }
     private void swapChar(char[] a,int i,int j){
-        
+
         char tmp = a[i];
         a[i] = a[j];
         a[j] = tmp;
-        
+
     }
     private boolean isVowels(char a){
-        
+
         a = Character.toLowerCase(a);
         if(a =='a'|| a =='e'||a =='i'||a =='o'||a =='u') return true;
         else return false;
-           
+
     }
-    
+
 }
 ```
+
 双指针，头尾元音交换
+
 ## word pattern
+
 ### 205 Isomorphic Strings
+
 ```java
+
 ```
 
 293
@@ -276,8 +308,11 @@ Flip Game II
 290
 
 Word Pattern
+
 ## 相似的字符串总会相遇
+
 ### 242 Valid Anagram
+
 ```java
 class Solution {
     public boolean isAnagram(String s, String t) {
@@ -289,16 +324,19 @@ class Solution {
     }
 }
 ```
+
 简单
+
 ### 49 Group Anagrams
+
 ```java
 class Solution {
     public List<List<String>> groupAnagrams(String[] strs) {
-        
+
         List<List<String>> res = new ArrayList<>();
         Map<String,List> map = new HashMap<>(); //用排过序的String来做key
         for(int i = 0; i < strs.length;i++){
-            
+
             List<String> sub = new ArrayList<>();
             sub.add(strs[i]);
             char[] s = strs[i].toCharArray();
@@ -306,15 +344,18 @@ class Solution {
             String key = String.valueOf(s);
             if(!map.containsKey(key)) map.put(key,sub);
             else  map.get(key).add(strs[i]);
-            
+
         }
         for(List sub:map.values()) res.add(sub);
         return res;       
     }
 }
 ```
+
 这道题是找有相同字母的string，用排序后的string做key，list做value，每次遇到相同的key就把string插入value的list。
+
 ### 249 Group Shifted Strings
+
 ```java
 class Solution {
     public List<List<String>> groupStrings(String[] strings) {
@@ -343,12 +384,15 @@ class Solution {
     }
 }
 ```
+
 与49题的思路相似，找能shift的字符串，则我们需要找到一个key来存这个list，根据题意就是每个char在字母表上移相同的位置，所以我们用每个char减去第一个char再构成一个字符串，所得到的key就是唯一的。注意由于z再移一位为a，所以我们重构key的时候，如果key<'a'需要加26回位。
+
 ### 87 Scramble String
+
 ```java
 class Solution {
     public boolean isScramble(String s1, String s2) {
-        
+
         //String
         //recursion
         if(s1.length() != s2.length()) {
@@ -359,7 +403,7 @@ class Solution {
         }
         char[] str1 = s1.toCharArray();
         char[] str2 = s2.toCharArray();
-        
+
         Arrays.sort(str1);
         Arrays.sort(str2);
         String st1 = String.valueOf(str1);
@@ -385,7 +429,9 @@ class Solution {
     }
 }
 ```
+
 比较容易想到的是递归做法，对两个字符串分段然后比较前一段和后一段是否符合scramble即可，时间复杂度为exponential complexity O(5^n) 具体证明https://leetcode.com/problems/scramble-string/discuss/29392/Share-my-4ms-c%2B%2B-recursive-solution
+
 ```java
 class Solution {
     public boolean isScramble(String s1, String s2) {
@@ -413,12 +459,14 @@ class Solution {
     }
 }
 ```
+
 然后是dp的解法，dp解法是一道比较难想的区间dp问题,dp[s1位置][s2位置][长度], dp[i][j][len] = || dp[i][j][k] && dp[i+k][j+k][len-k] || dp[i][j+len-k][k] && dp[i+k][j][len-k];
     1.当s1[i] == s2[j] 时 dp[i][j][1] 有效。
     2. dp[i][j][len] = || dp[i][j][k] && dp[i+k][j+k][len-k] || dp[i][j+len-k][k] && dp[i+k][j][len-k];匹配到前后均为有效的返回true，均没有匹配到就返回false
 时间复杂度为O(N^4);
- 
+
 ### 179 Largest Number
+
 ```java
 
 ```
@@ -479,17 +527,12 @@ Strobogrammatic Number II
 
 Strobogrammatic Number III
 
-
-
-
-
 提高
-
-
 
 ### 68 Text Justification
 
 ### 65 Valid Number
+
 ```java
 class Solution {
     public boolean isNumber(String s) {
@@ -548,9 +591,11 @@ class Solution {
     }
 }
 ```
+
 最傻逼的一道题，疯狂卡corner case
 
 ### 157 Read N Characters Given Read4
+
 ```java
 /**
  * The read4 API is defined in the parent class Reader4.
@@ -574,11 +619,14 @@ public class Solution extends Reader4 {
                 return offset;
             }
         }
-        
+
     }
 ```
+
 注意两个条件，file读完了和已经取得了n个数字，是下一道题的练习
+
 ### 158 Read N Characters Given Read4 II - Call multiple times
+
 ```java
 /**
  * The read4 API is defined in the parent class Reader4.
@@ -613,14 +661,10 @@ public class Solution extends Reader4 {
 }
 ```
 
-
-
-
 ## Substring
 
-
-
 ### 76 Minimum Window Substring
+
 ```java
 class Solution {
     public String minWindow(String s, String t) {
@@ -651,8 +695,11 @@ class Solution {
     }
 }
 ```
+
 给一个s再给一个t求最短的含有t的子字符串，滑动窗口求子字符串，用一个字典保存t，然后对s进行遍历，假如说遇到了足够的元素，再操作左指针向前进，找到最小的长度保存这个子字符串。
+
 ### 30 Substring with Concatenation of All Words
+
 ```java
 class Solution {
     public List<Integer> findSubstring(String s, String[] words) {
@@ -680,7 +727,7 @@ class Solution {
                     res.add(i);
                 }
             }
-            
+
         }
 
         return res;
@@ -688,7 +735,9 @@ class Solution {
     }
 }
 ```
+
 two map
+
 ```java
 class Solution {
     public List<Integer> findSubstring(String s, String[] words) {
@@ -714,16 +763,20 @@ class Solution {
         }
         return false;
     }
-    
+
 }
 ```
+
 startsWith+dfs
+
 ```java
 
 ```
+
 trie
 
 ### 3 Longest Substring Without Repeating Characters
+
 ```java
 class Solution {
     public int lengthOfLongestSubstring(String s) {
@@ -744,9 +797,11 @@ class Solution {
   }
 }
 ```
+
 最优算法是map加上双指针，维护左指针为最大的重复数组之后一个位置，再更新max
 
 ### 340 Longest Substring with At Most K Distinct Characters
+
 ```java
 class Solution {
     public int lengthOfLongestSubstringKDistinct(String s, int k) {              
@@ -772,14 +827,16 @@ class Solution {
                 l = pointer+1;
             }
             res = Math.max(res,r-l);   
-            
+
         }
         return res; 
         //O(n+k)
     }
 }
 ```
+
 sliding window+hashmap维护一个k长度的map，存入char和位置index找到最小的char删除，更新max
+
 ```java
 class Solution {
   public int lengthOfLongestSubstringKDistinct(String s, int k) {
@@ -819,9 +876,11 @@ class Solution {
   }
 }
 ```
+
 LinkedListMap 有序字典法 维护一个linkedmap大小为k，如果大于k那么删除最左端点元素，如果有这个元素那么更新位置
 
 ### 395 Longest Substring with At Least K Repeating Characters
+
 ```java
 class Solution {
     public int longestSubstring(String s, int k) {
@@ -871,8 +930,10 @@ class Solution {
     }
 }
 ```
+
 仍然可以用sliding window 法，找一个字符串每个字母重复k次以上的子字符串，我们假定答案可以拥有1-26个不同元素
 iterate 1-26，维护两个数字，unique的元素和大于k的元素，如果两个相等那么就符合条件，否则不符合，time O(26n);
+
 ```java
 class Solution {
     int max = 0;
@@ -904,13 +965,15 @@ class Solution {
     }
 }
 ```
+
 更直观的方法是，用这个字符串中小于k的元素split，因为他本来就不在答案内，所以当str里面没有小于k的元素时，就符合条件，写作递归的形式，比较这些元素的大小。
 
 ### 159 Longest Substring with At Most Two Distinct Characters
+
 ```java
 class Solution {
     public int lengthOfLongestSubstringTwoDistinct(String s) {
-        
+
         if(s == null || s.length() == 0) return 0;
         //string 
         //sliding window改进
@@ -932,13 +995,15 @@ class Solution {
                 l = pointer+1;
             }
             res = Math.max(res,r-l);   
-            
+
         }
         return res;           
     }
 }
 ```
+
 340题的简化版，也是用两种方法，第一种hashmap存位置，并更新，如果size大于2，遍历map并找到最左边的位置，删除更新最大值。
+
 ```java
 class Solution {
     public int lengthOfLongestSubstringTwoDistinct(String s) {
@@ -962,12 +1027,10 @@ class Solution {
     }
 }
 ```
+
 有序字典法，几乎和340题是一样的思路。
 
-
 ### Palindrome
-
-
 
 125
 
@@ -1005,13 +1068,7 @@ Palindrome Partitioning II
 
 Palindrome Permutation II
 
-
-
-
-
 Parentheses
-
-
 
 20
 
@@ -1033,13 +1090,7 @@ Different Ways to Add Parentheses
 
 Remove Invalid Parentheses
 
-
-
-
-
 Subsequence
-
-
 
 392
 
